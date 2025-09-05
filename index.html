@@ -13,6 +13,7 @@
             color: #e2e8f0;
             margin: 0;
             padding: 1rem;
+            padding-bottom: 4rem; /* Alt güvenlik boşluğu artırıldı */
         }
         .app-container {
             max-width: 1400px;
@@ -59,7 +60,7 @@
 
         /* Mobil Cihazlar İçin Özel Stiller */
         @media (max-width: 640px) {
-            body { padding: 0.5rem; }
+            body { padding: 0.5rem; padding-bottom: 4rem; }
             .app-container { padding: 1rem; }
             th, td {
                 font-size: 0.75rem;
@@ -144,9 +145,13 @@
     
     <div id="settings-modal" class="modal fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden p-4">
         <div class="bg-slate-800 p-6 rounded-lg shadow-xl w-full md:w-1/2 relative settings-modal-content">
-             <button id="close-settings-button" class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl font-bold">&times;</button>
-             <div class="flex justify-end mb-4"><button id="logout-button" class="text-white bg-red-600 hover:bg-red-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Çıkış Yap</button></div>
-            <h2 class="text-2xl font-bold mb-6 text-center text-white">Ayarlar</h2>
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold text-white">Ayarlar</h2>
+                <div class="flex items-center gap-x-4">
+                    <button id="logout-button" class="text-white bg-red-600 hover:bg-red-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Çıkış Yap</button>
+                    <button id="close-settings-button" class="text-gray-400 hover:text-white text-3xl font-bold">&times;</button>
+                </div>
+            </div>
             <div class="max-w-md mx-auto space-y-4">
                 <div><label for="name-input" class="block mb-2 text-sm font-medium text-gray-300">İsim Soyisim</label><input type="text" id="name-input" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg block w-full p-2.5" placeholder="Örn: Muhammed Ömer Doğuç"></div>
                 <div><label for="school-input" class="block mb-2 text-sm font-medium text-gray-300">Okul</label><input type="text" id="school-input" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg block w-full p-2.5" placeholder="Örn: Turgut Özal Anadolu Lisesi"></div>
@@ -169,6 +174,18 @@
     </div>
 
     <div id="lesson-modal" class="modal fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden"><div class="bg-slate-800 p-6 rounded-lg shadow-xl w-11/12 md:w-1/3"><h2 id="modal-title" class="text-xl font-bold mb-4">Dersi Düzenle</h2><div class="space-y-4"><div><label for="lesson-name" class="block mb-2 text-sm font-medium">Ders Adı ve Sınıf</label><input type="text" id="lesson-name" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg block w-full p-2.5" placeholder="Örn: TDE12 (12-E)"></div><div><label for="lesson-note" class="block mb-2 text-sm font-medium">Bu Derse Ait Not</label><div class="flex items-center gap-2"><input type="date" id="note-date" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg p-2.5"><button id="today-button" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Bugün</button></div><textarea id="lesson-note" rows="4" class="mt-2 bg-gray-700 border border-gray-600 text-white text-sm rounded-lg block w-full p-2.5" placeholder="Ödev, hatırlatma, sınav tarihi..."></textarea></div><div class="flex justify-between items-center mt-6"><button id="delete-lesson-button" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Dersi Sil</button><div><button id="cancel-button" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mr-2">İptal</button><button id="save-button" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Kaydet</button></div></div></div></div></div>
+    
+    <div id="confirmation-modal" class="modal fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden p-4">
+        <div class="bg-slate-800 p-6 rounded-lg shadow-xl w-full sm:w-1/3 text-center">
+            <h2 class="text-xl font-bold mb-4 text-white">Emin misiniz?</h2>
+            <p class="text-gray-300 mb-6">Bu dersi kalıcı olarak silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.</p>
+            <div class="flex justify-center gap-4">
+                <button id="confirm-cancel-button" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded">İptal</button>
+                <button id="confirm-delete-button" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded">Evet, Sil</button>
+            </div>
+        </div>
+    </div>
+
     <div id="notification-container" class="fixed bottom-5 right-5 space-y-3 z-50"></div>
 
     <script type="module">
@@ -472,7 +489,9 @@
         };
 
         const modal = document.getElementById('lesson-modal');
+        const confirmationModal = document.getElementById('confirmation-modal');
         const closeModal = () => modal.classList.add('hidden');
+        const closeConfirmationModal = () => confirmationModal.classList.add('hidden');
         
         document.getElementById('save-button').addEventListener('click', () => {
             const { day, hourIndex } = currentCell;
@@ -492,12 +511,19 @@
         });
 
         document.getElementById('delete-lesson-button').addEventListener('click', () => {
+            confirmationModal.classList.remove('hidden');
+        });
+        
+        document.getElementById('confirm-delete-button').addEventListener('click', () => {
             const { day, hourIndex } = currentCell;
             const key = `${day}-${hourIndex}`;
             delete scheduleData[key];
             saveDataToFirestore();
             closeModal();
+            closeConfirmationModal();
         });
+        
+        document.getElementById('confirm-cancel-button').addEventListener('click', closeConfirmationModal);
 
         document.getElementById('today-button').addEventListener('click', () => {
             document.getElementById('note-date').value = new Date().toISOString().split('T')[0];
