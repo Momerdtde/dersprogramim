@@ -22,6 +22,13 @@
             padding: 1.5rem;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             padding-top: 1rem;
+            position: relative;
+        }
+        .settings-button {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            z-index: 50;
         }
         .neon-text {
             font-family: 'Orbitron', sans-serif;
@@ -53,9 +60,13 @@
             100% { box-shadow: 0 0 0 0 rgba(47, 133, 90, 0); }
         }
         .note-indicator { position: absolute; bottom: 4px; left: 4px; font-size: 0.8rem; }
-        .modal { background-color: rgba(0,0,0,0.7); }
+        .modal { background-color: rgba(0,0,0,0.7); z-index: 100; }
         .notification { transition: opacity 0.5s, transform 0.5s; }
         .header-info-container { display: flex; flex-direction: column; align-items: center; gap: 0.25rem; margin-bottom: 1.5rem; }
+        .settings-modal-content {
+            max-height: 90vh;
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body class="bg-gray-900">
@@ -65,14 +76,8 @@
             <h2 class="text-2xl font-bold text-center text-white mb-6">Giriş Yap veya Kayıt Ol</h2>
             <div id="auth-error" class="bg-red-500 text-white p-3 rounded-lg mb-4 text-center hidden"></div>
             <div class="space-y-4">
-                <div>
-                    <label for="email" class="block mb-2 text-sm font-medium text-gray-300">E-posta</label>
-                    <input type="email" id="email" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg block w-full p-2.5" placeholder="ornek@eposta.com" required>
-                </div>
-                <div>
-                    <label for="password" class="block mb-2 text-sm font-medium text-gray-300">Şifre</label>
-                    <input type="password" id="password" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg block w-full p-2.5" placeholder="••••••••" required>
-                </div>
+                <div><label for="email" class="block mb-2 text-sm font-medium text-gray-300">E-posta</label><input type="email" id="email" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg block w-full p-2.5" placeholder="ornek@eposta.com" required></div>
+                <div><label for="password" class="block mb-2 text-sm font-medium text-gray-300">Şifre</label><input type="password" id="password" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg block w-full p-2.5" placeholder="••••••••" required></div>
                 <div class="flex flex-col sm:flex-row gap-4 pt-2">
                     <button id="login-button" class="w-full text-white bg-blue-600 hover:bg-blue-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Giriş Yap</button>
                     <button id="register-button" class="w-full text-white bg-green-600 hover:bg-green-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Kayıt Ol</button>
@@ -83,6 +88,9 @@
 
     <div id="app-wrapper" class="hidden">
         <div class="app-container">
+            <button id="settings-icon-button" class="settings-button text-gray-300 hover:text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            </button>
             <div class="header-info-container text-center">
                 <div>
                     <h1 id="user-name" class="text-3xl font-bold text-white"></h1>
@@ -95,40 +103,61 @@
                 <div class="bg-slate-700 p-4 rounded-lg"><p class="font-semibold text-green-300">Şu Anki Ders</p><p id="current-lesson-info" class="text-xl"></p><p id="current-lesson-note-preview" class="text-sm text-yellow-300 mt-1 truncate"></p></div>
                 <div class="bg-slate-700 p-4 rounded-lg"><p class="font-semibold text-purple-300">Sonraki Ders</p><p id="next-lesson-info" class="text-xl"></p></div>
             </div>
-            <nav class="grid grid-cols-2 gap-2 mb-4">
+            <nav class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
                 <button class="tab-button active text-gray-300 py-3 px-4 font-medium rounded-lg" onclick="changeTab('schedule')">Ders Programı</button>
                 <button class="tab-button text-gray-300 py-3 px-4 font-medium rounded-lg" onclick="changeTab('calendar')">Akademik Takvim</button>
                 <button class="tab-button text-gray-300 py-3 px-4 font-medium rounded-lg" onclick="changeTab('holidays')">Resmî Tatiller</button>
-                <button class="tab-button text-gray-300 py-3 px-4 font-medium rounded-lg" onclick="changeTab('settings')">Ayarlar</button>
+                <button class="tab-button text-gray-300 py-3 px-4 font-medium rounded-lg" onclick="changeTab('acquisitions')">Günlük Kazanımlar</button>
             </nav>
+            
+            <div id="future-notes-container" class="mb-6">
+                <h3 class="text-xl font-bold mb-3 text-center text-white border-b border-gray-600 pb-2">Yaklaşan Notlar</h3>
+                <ul id="future-notes-list" class="space-y-2 max-h-48 overflow-y-auto"></ul>
+            </div>
+
             <div id="app-content">
                 <div id="schedule-tab" class="tab-content"><div class="overflow-x-auto"><table class="min-w-full bg-slate-800 border-collapse"><thead><tr><th class="w-24 time-header">Saat</th><th class="day-header">Pazartesi</th><th class="day-header">Salı</th><th class="day-header">Çarşamba</th><th class="day-header">Perşembe</th><th class="day-header">Cuma</th></tr></thead><tbody id="schedule-body"></tbody></table></div></div>
                 <div id="calendar-tab" class="tab-content hidden"><h2 class="text-2xl font-bold mb-4 text-center text-white">Akademik Takvim</h2><ul id="academic-calendar-list" class="space-y-3"></ul></div>
                 <div id="holidays-tab" class="tab-content hidden"><h2 class="text-2xl font-bold mb-4 text-center text-white">Resmî Tatiller (2025-2026)</h2><ul id="public-holidays-list" class="space-y-3"></ul></div>
-                <div id="settings-tab" class="tab-content hidden">
-                     <div class="flex justify-end mb-4 -mt-4">
-                        <button id="logout-button" class="text-white bg-red-600 hover:bg-red-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Çıkış Yap</button>
-                     </div>
-                    <h2 class="text-2xl font-bold mb-6 text-center text-white">Ayarlar</h2>
-                    <div class="max-w-md mx-auto space-y-4">
-                        <div><label for="name-input" class="block mb-2 text-sm font-medium text-gray-300">İsim Soyisim</label><input type="text" id="name-input" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Örn: Muhammed Ömer Doğuç"></div>
-                        <div><label for="school-input" class="block mb-2 text-sm font-medium text-gray-300">Okul</label><input type="text" id="school-input" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Örn: Turgut Özal Anadolu Lisesi"></div>
-                        <div><label for="branch-input" class="block mb-2 text-sm font-medium text-gray-300">Branş</label><input type="text" id="branch-input" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Örn: Türk Dili ve Edebiyatı"></div>
-                        <button id="save-settings-button" class="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Ayarları Kaydet</button>
-                        <div class="pt-6">
-                            <h3 class="text-lg font-semibold border-b border-gray-600 pb-2 mb-4">Veri Yönetimi</h3>
-                            <div class="flex flex-col sm:flex-row gap-4">
-                                <button id="import-schedule-button" class="w-full text-white bg-green-600 hover:bg-green-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Ders Programı İçe Aktar</button>
-                                <button id="import-calendar-button" class="w-full text-white bg-purple-600 hover:bg-purple-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Akademik Takvim İçe Aktar</button>
-                            </div>
-                            <input type="file" id="file-importer" class="hidden" accept=".json">
-                        </div>
+                
+                <div id="acquisitions-tab" class="tab-content hidden">
+                    <h2 class="text-2xl font-bold mb-4 text-center text-white">Günlük Kazanımlar</h2>
+                    <div class="flex justify-center flex-wrap gap-4 mb-4">
+                        <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onclick="showAcquisitions(9)">9. Sınıf</button>
+                        <button class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded" onclick="showAcquisitions(10)">10. Sınıf</button>
+                        <button class="bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded" onclick="showAcquisitions(11)">11. Sınıf</button>
+                        <button class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" onclick="showAcquisitions(12)">12. Sınıf</button>
                     </div>
+                    <div id="acquisitions-content" class="bg-slate-800 p-4 rounded-lg min-h-[200px]"></div>
                 </div>
             </div>
         </div>
-         <div class="w-full text-right pr-4 mt-2">
-             <p class="neon-text">by MOD</p>
+         <div class="w-full text-right pr-4 mt-2"><p class="neon-text">by MOD</p></div>
+    </div>
+    
+    <div id="settings-modal" class="modal fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden p-4">
+        <div class="bg-slate-800 p-6 rounded-lg shadow-xl w-full md:w-1/2 relative settings-modal-content">
+             <button id="close-settings-button" class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl font-bold">&times;</button>
+             <div class="flex justify-end mb-4"><button id="logout-button" class="text-white bg-red-600 hover:bg-red-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Çıkış Yap</button></div>
+            <h2 class="text-2xl font-bold mb-6 text-center text-white">Ayarlar</h2>
+            <div class="max-w-md mx-auto space-y-4">
+                <div><label for="name-input" class="block mb-2 text-sm font-medium text-gray-300">İsim Soyisim</label><input type="text" id="name-input" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg block w-full p-2.5" placeholder="Örn: Muhammed Ömer Doğuç"></div>
+                <div><label for="school-input" class="block mb-2 text-sm font-medium text-gray-300">Okul</label><input type="text" id="school-input" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg block w-full p-2.5" placeholder="Örn: Turgut Özal Anadolu Lisesi"></div>
+                <div><label for="branch-input" class="block mb-2 text-sm font-medium text-gray-300">Branş</label><input type="text" id="branch-input" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg block w-full p-2.5" placeholder="Örn: Türk Dili ve Edebiyatı"></div>
+                <button id="save-settings-button" class="w-full text-white bg-blue-600 hover:bg-blue-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Ayarları Kaydet</button>
+                <div class="pt-6">
+                    <h3 class="text-lg font-semibold border-b border-gray-600 pb-2 mb-4">Veri Yönetimi</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <button id="import-schedule-button" class="w-full text-white bg-green-600 hover:bg-green-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Ders Programı</button>
+                        <button id="import-calendar-button" class="w-full text-white bg-purple-600 hover:bg-purple-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Akademik Takvim</button>
+                        <button id="import-acquisitions-9-button" class="w-full text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center">9. Sınıf Kazanım</button>
+                        <button id="import-acquisitions-10-button" class="w-full text-white bg-green-500 hover:bg-green-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center">10. Sınıf Kazanım</button>
+                        <button id="import-acquisitions-11-button" class="w-full text-white bg-yellow-500 hover:bg-yellow-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center">11. Sınıf Kazanım</button>
+                        <button id="import-acquisitions-12-button" class="w-full text-white bg-red-500 hover:bg-red-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center">12. Sınıf Kazanım</button>
+                    </div>
+                    <input type="file" id="file-importer" class="hidden" accept=".json">
+                </div>
+            </div>
         </div>
     </div>
 
@@ -136,12 +165,10 @@
     <div id="notification-container" class="fixed bottom-5 right-5 space-y-3 z-50"></div>
 
     <script type="module">
-        // Firebase SDK'larını import et
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- FIREBASE KURULUMU ---
         const firebaseConfig = {
             apiKey: "AIzaSyA86dtrt_qXJc4lhpOtVhISfPH5MBI9wxo",
             authDomain: "okulrehberi-6006b.firebaseapp.com",
@@ -156,163 +183,114 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         let userId = null;
-        let unsubscribeFromData = null; // onSnapshot listener'ını tutmak için
+        let unsubscribeFromData = null;
 
         const authContainer = document.getElementById('auth-container');
         const appWrapper = document.getElementById('app-wrapper');
         const authError = document.getElementById('auth-error');
 
-        // Kullanıcı durumunu dinle (Giriş yaptı mı, yapmadı mı?)
         onAuthStateChanged(auth, user => {
             if (user) {
-                // Kullanıcı giriş yapmış
                 userId = user.uid;
                 authContainer.classList.add('hidden');
                 appWrapper.classList.remove('hidden');
-                loadData(); // Verileri Firestore'dan yükle
+                loadData();
             } else {
-                // Kullanıcı çıkış yapmış
                 userId = null;
                 authContainer.classList.remove('hidden');
                 appWrapper.classList.add('hidden');
-                if (unsubscribeFromData) {
-                    unsubscribeFromData(); // Eski listener'ı temizle
-                    unsubscribeFromData = null;
-                }
-                resetAppData(); // Uygulama verilerini temizle
+                if (unsubscribeFromData) unsubscribeFromData();
+                resetAppData();
             }
         });
 
-        // Hata mesajını göster
-        const showAuthError = (message) => {
-            authError.textContent = message;
-            authError.classList.remove('hidden');
-        };
+        // --- AUTH & SETTINGS ---
+        const showAuthError = (message) => { authError.textContent = message; authError.classList.remove('hidden'); };
+        document.getElementById('login-button').addEventListener('click', () => signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value).catch(err => showAuthError("E-posta veya şifre hatalı.")));
+        document.getElementById('register-button').addEventListener('click', () => createUserWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value).catch(err => showAuthError(err.code === 'auth/weak-password' ? 'Şifre en az 6 karakter olmalıdır.' : 'Kayıt başarısız oldu.')));
+        document.getElementById('logout-button').addEventListener('click', () => signOut(auth));
+        const settingsModal = document.getElementById('settings-modal');
+        document.getElementById('settings-icon-button').addEventListener('click', () => settingsModal.classList.remove('hidden'));
+        document.getElementById('close-settings-button').addEventListener('click', () => settingsModal.classList.add('hidden'));
 
-        // Giriş Yapma
-        document.getElementById('login-button').addEventListener('click', () => {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            signInWithEmailAndPassword(auth, email, password)
-                .catch(error => {
-                    console.error("Giriş hatası:", error);
-                    showAuthError("E-posta veya şifre hatalı.");
-                });
-        });
-
-        // Kayıt Olma
-        document.getElementById('register-button').addEventListener('click', () => {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            createUserWithEmailAndPassword(auth, email, password)
-                .catch(error => {
-                    console.error("Kayıt hatası:", error);
-                     if (error.code === 'auth/weak-password') {
-                        showAuthError('Şifre en az 6 karakter olmalıdır.');
-                    } else if (error.code === 'auth/email-already-in-use') {
-                        showAuthError('Bu e-posta adresi zaten kullanılıyor.');
-                    } else {
-                        showAuthError('Kayıt başarısız oldu.');
-                    }
-                });
-        });
-
-        // Çıkış Yapma
-        document.getElementById('logout-button').addEventListener('click', () => {
-            signOut(auth);
-        });
-
-        // --- UYGULAMA MANTIĞI (Firebase ile güncellendi) ---
-
-        let scheduleData = {};
-        let academicCalendar = [];
-
-        // Veriyi Firestore'a kaydet
+        // --- DATA MANAGEMENT ---
+        let scheduleData = {}, academicCalendar = [], acquisitions9Data = [], acquisitions10Data = [], acquisitions11Data = [], acquisitions12Data = [];
+        
         const saveDataToFirestore = async () => {
             if (!userId) return;
             const appData = {
                 schedule: scheduleData,
                 calendar: academicCalendar,
+                acquisitions9: acquisitions9Data,
+                acquisitions10: acquisitions10Data,
+                acquisitions11: acquisitions11Data,
+                acquisitions12: acquisitions12Data,
                 settings: {
                     name: document.getElementById('name-input').value,
                     school: document.getElementById('school-input').value,
                     branch: document.getElementById('branch-input').value,
                 }
             };
-            try {
-                const userDocRef = doc(db, "users", userId);
-                await setDoc(userDocRef, { data: appData });
-            } catch (error) {
-                console.error("Veri kaydetme hatası:", error);
-                createNotification("Veri kaydedilemedi!", "error");
-            }
+            try { await setDoc(doc(db, "users", userId), { data: appData }); } 
+            catch (error) { createNotification("Veri kaydedilemedi!", "error"); }
         };
 
-        // Veriyi Firestore'dan yükle ve değişiklikleri dinle
         const loadData = () => {
             if (!userId) return;
-            
-            // Eğer zaten bir listener varsa, önce onu durdur
-            if (unsubscribeFromData) {
-                unsubscribeFromData();
-            }
-
-            const userDocRef = doc(db, "users", userId);
-            
-            // onSnapshot ile veritabanındaki değişiklikleri anlık olarak dinle
-            unsubscribeFromData = onSnapshot(userDocRef, (docSnap) => {
+            if (unsubscribeFromData) unsubscribeFromData();
+            unsubscribeFromData = onSnapshot(doc(db, "users", userId), (docSnap) => {
                 if (docSnap.exists()) {
-                    const firestoreData = docSnap.data().data;
-                    scheduleData = firestoreData.schedule || {};
-                    academicCalendar = firestoreData.calendar || [];
-                    if(firestoreData.settings) {
-                        document.getElementById('name-input').value = firestoreData.settings.name || '';
-                        document.getElementById('school-input').value = firestoreData.settings.school || '';
-                        document.getElementById('branch-input').value = firestoreData.settings.branch || '';
+                    const d = docSnap.data().data || {};
+                    scheduleData = d.schedule || {};
+                    academicCalendar = d.calendar || [];
+                    acquisitions9Data = d.acquisitions9 || [];
+                    acquisitions10Data = d.acquisitions10 || [];
+                    acquisitions11Data = d.acquisitions11 || [];
+                    acquisitions12Data = d.acquisitions12 || [];
+                    if (d.settings) {
+                        document.getElementById('name-input').value = d.settings.name || '';
+                        document.getElementById('school-input').value = d.settings.school || '';
+                        document.getElementById('branch-input').value = d.settings.branch || '';
                         updateHeaderInfo();
                     }
+                    if(acquisitions9Data.length === 0) acquisitions9Data = initialAcquisitions9;
+                    if(acquisitions12Data.length === 0) acquisitions12Data = initialAcquisitions12;
                 } else {
-                    console.log("Kullanıcı için veri bulunamadı, yeni veri oluşturulacak.");
                     resetAppData();
                 }
-                renderSchedule();
-                renderAcademicCalendar();
+                renderAll();
             });
         };
         
-        // Kullanıcı çıkış yaptığında uygulama arayüzünü sıfırla
         const resetAppData = () => {
-            scheduleData = {};
-            academicCalendar = [];
-            document.getElementById('name-input').value = '';
-            document.getElementById('school-input').value = '';
-            document.getElementById('branch-input').value = '';
+            scheduleData = {}; academicCalendar = []; 
+            acquisitions9Data = initialAcquisitions9; acquisitions10Data = []; acquisitions11Data = []; acquisitions12Data = initialAcquisitions12;
+            ['name-input', 'school-input', 'branch-input'].forEach(id => document.getElementById(id).value = '');
             updateHeaderInfo();
-            renderSchedule();
-            renderAcademicCalendar();
+            renderAll();
         };
 
-        // --- GERİ KALAN KOD (localStorage yerine saveDataToFirestore kullanacak şekilde güncellendi) ---
+        const renderAll = () => {
+            renderSchedule(); renderAcademicCalendar(); renderFutureNotes();
+            showAcquisitions(9); // Default view
+        };
         
+        // --- UI & RENDER FUNCTIONS ---
         const days = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma'];
         const hours = ['09:00 - 09:40', '09:50 - 10:30', '10:40 - 11:20', '11:30 - 12:10', '12:20 - 13:00', '13:40 - 14:20', '14:30 - 15:10', '15:20 - 16:00'];
         const publicHolidays = [{ date: "2025-10-28", event: "Cumhuriyet Bayramı Arifesi (Öğleden sonra)" }, { date: "2025-10-29", event: "Cumhuriyet Bayramı" }, { date: "2025-12-31", event: "Yılbaşı Gecesi" }, { date: "2026-01-01", event: "Yılbaşı" }, { date: "2026-03-19", event: "Ramazan Bayramı Arifesi (Öğleden sonra)" }, { date: "2026-03-20", event: "Ramazan Bayramı 1. Gün" }, { date: "2026-03-21", event: "Ramazan Bayramı 2. Gün" }, { date: "2026-03-22", event: "Ramazan Bayramı 3. Gün" }, { date: "2026-04-23", event: "Ulusal Egemenlik ve Çocuk Bayramı" }, { date: "2026-05-01", event: "Emek ve Dayanışma Günü" }, { date: "2026-05-19", event: "Atatürk’ü Anma, Gençlik ve Spor Bayramı" }, { date: "2026-05-26", event: "Kurban Bayramı Arifesi (Öğleden sonra)" }, { date: "2026-05-27", event: "Kurban Bayramı 1. Gün" }, { date: "2026-05-28", event: "Kurban Bayramı 2. Gün" }, { date: "2026-05-29", event: "Kurban Bayramı 3. Gün" }, { date: "2026-05-30", event: "Kurban Bayramı 4. Gün" }, { date: "2026-07-15", event: "Demokrasi ve Millî Birlik Günü" }, { date: "2026-08-30", event: "Zafer Bayramı" }];
         const classColors = { '12-C': 'border-2 border-blue-500', '9-C': 'border-2 border-green-500', '9-I': 'border-2 border-yellow-500', '9-D': 'border-2 border-red-500' };
         let currentCell = { day: null, hourIndex: null };
-        const scheduleBody = document.getElementById('schedule-body');
-        const modal = document.getElementById('lesson-modal');
-        const modalTitle = document.getElementById('modal-title');
-        const lessonNameInput = document.getElementById('lesson-name');
-        const noteDateInput = document.getElementById('note-date');
-        const lessonNoteInput = document.getElementById('lesson-note');
-
+        
         const startApp = () => {
             renderPublicHolidays();
             updateTimeAndLessons();
             setInterval(updateTimeAndLessons, 1000);
+            changeTab('schedule');
         };
 
         const renderSchedule = () => {
+            const scheduleBody = document.getElementById('schedule-body');
             scheduleBody.innerHTML = '';
             hours.forEach((hour, hourIndex) => {
                 const row = document.createElement('tr');
@@ -322,22 +300,24 @@
                 row.appendChild(timeCell);
                 days.forEach(day => {
                     const cell = document.createElement('td');
-                    cell.dataset.day = day;
-                    cell.dataset.hourIndex = hourIndex;
+                    cell.dataset.day = day; cell.dataset.hourIndex = hourIndex;
                     const key = `${day}-${hourIndex}`;
                     const lesson = scheduleData[key];
                     if (lesson && lesson.name) {
                         cell.textContent = lesson.name;
-                        const today = new Date().toISOString().split('T')[0];
-                        if (lesson.notes && lesson.notes[today]) {
-                            cell.innerHTML += `<span class="note-indicator">📝</span>`;
+                        let hasUpcomingNote = false;
+                        if (lesson.notes) {
+                            const today = new Date(); today.setHours(0, 0, 0, 0);
+                            for (const noteDateStr in lesson.notes) {
+                                const noteDate = new Date(noteDateStr.replace(/-/g, '/'));
+                                if (noteDate >= today) { hasUpcomingNote = true; break; }
+                            }
                         }
+                        if (hasUpcomingNote) cell.innerHTML += `<span class="note-indicator">📝</span>`;
                         const classNameMatch = lesson.name.match(/\(([^)]+)\)/);
                         if (classNameMatch && classNameMatch[1]) {
                             const className = classNameMatch[1].trim();
-                            if (classColors[className]) {
-                                cell.className += ` ${classColors[className]}`;
-                            }
+                            if (classColors[className]) cell.className += ` ${classColors[className]}`;
                         }
                     }
                     cell.addEventListener('click', () => openModal(day, hourIndex));
@@ -346,32 +326,99 @@
                 scheduleBody.appendChild(row);
             });
         };
+        
+        const renderFutureNotes = () => {
+            const list = document.getElementById('future-notes-list');
+            list.innerHTML = '';
+            const futureNotes = [];
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+            for (const key in scheduleData) {
+                const lesson = scheduleData[key];
+                if (lesson.notes) {
+                    for (const noteDateStr in lesson.notes) {
+                        const noteDate = new Date(noteDateStr.replace(/-/g, '/'));
+                        if (noteDate >= today) {
+                            futureNotes.push({ date: noteDateStr, lessonName: lesson.name, note: lesson.notes[noteDateStr], key: key });
+                        }
+                    }
+                }
+            }
+            futureNotes.sort((a, b) => new Date(a.date) - new Date(b.date));
+            if (futureNotes.length === 0) { list.innerHTML = '<li class="text-center text-gray-400">Yaklaşan notunuz bulunmuyor.</li>'; return; }
+            futureNotes.forEach(note => {
+                const li = document.createElement('li');
+                li.className = 'bg-slate-700 p-3 rounded-lg flex justify-between items-center cursor-pointer hover:bg-slate-600';
+                li.innerHTML = `<div><p class="font-semibold text-white">${formatDate(note.date, { weekday: 'short', day: '2-digit', month: 'short' })} - ${note.lessonName}</p><p class="text-sm text-yellow-300 truncate">${note.note}</p></div>`;
+                li.addEventListener('click', () => {
+                    const [day, hourIndex] = note.key.split('-');
+                    openModal(day, parseInt(hourIndex, 10));
+                    document.getElementById('note-date').value = note.date;
+                    document.getElementById('lesson-note').value = note.note;
+                });
+                list.appendChild(li);
+            });
+        };
 
         const renderAcademicCalendar = () => {
-            const calendarList = document.getElementById('academic-calendar-list');
-            calendarList.innerHTML = '';
-            if (!academicCalendar || academicCalendar.length === 0) {
-                calendarList.innerHTML = '<li class="text-center text-gray-400">Akademik takvim verisi bulunmuyor. Lütfen Ayarlar\'dan içe aktarın.</li>';
-                return;
-            }
+            const list = document.getElementById('academic-calendar-list');
+            list.innerHTML = '';
+            if (!academicCalendar || academicCalendar.length === 0) { list.innerHTML = '<li class="text-center text-gray-400">Akademik takvim verisi yüklenmedi.</li>'; return; }
             academicCalendar.forEach(item => {
                 const li = document.createElement('li');
                 li.className = 'bg-slate-700 p-4 rounded-lg flex justify-between items-center flex-wrap';
                 const dateText = item.endDate ? `${formatDate(item.date)} - ${formatDate(item.endDate)}` : formatDate(item.date);
                 li.innerHTML = `<span class="font-semibold text-white">${item.event}</span><span class="text-sm text-blue-300 text-right">${dateText}</span>`;
-                calendarList.appendChild(li);
-});
+                list.appendChild(li);
+            });
         };
 
         const renderPublicHolidays = () => {
-            const holidaysList = document.getElementById('public-holidays-list');
-            holidaysList.innerHTML = '';
+            const list = document.getElementById('public-holidays-list');
+            list.innerHTML = '';
             publicHolidays.forEach(holiday => {
                 const li = document.createElement('li');
                 li.className = 'bg-slate-700 p-4 rounded-lg flex justify-between items-center flex-wrap';
                 li.innerHTML = `<span class="font-semibold text-white">${holiday.event}</span><span class="text-sm text-blue-300 text-right">${formatDate(holiday.date)}</span>`;
-                holidaysList.appendChild(li);
+                list.appendChild(li);
             });
+        };
+
+        window.showAcquisitions = (grade) => {
+            const container = document.getElementById('acquisitions-content');
+            const dataMap = {
+                9: acquisitions9Data,
+                10: acquisitions10Data,
+                11: acquisitions11Data,
+                12: acquisitions12Data,
+            };
+            const data = dataMap[grade] || [];
+
+            // Okulun başlangıç tarihini 2025-2026 eğitim yılına göre ayarla
+            const schoolStartDate = new Date('2025-09-08'); 
+            const today = new Date();
+            
+            if (today < schoolStartDate) {
+                 container.innerHTML = `<p class="text-center text-gray-400">2025-2026 eğitim-öğretim yılı henüz başlamadı.</p>`;
+                 return;
+            }
+
+            const oneDay = 24 * 60 * 60 * 1000;
+            // Hafta numarasını okulun başlangıcına göre hesapla
+            const weekNumber = Math.ceil(((today - schoolStartDate) / oneDay + schoolStartDate.getDay()) / 7);
+
+            const weekData = data.find(w => w.week === weekNumber);
+
+            if (weekData) {
+                container.innerHTML = `
+                    <h4 class="font-bold text-lg mb-2 text-yellow-300">Hafta ${weekNumber}: ${weekData.dateRange}</h4>
+                    <p><strong>Tema/Ünite:</strong> ${weekData.theme || 'Belirtilmemiş'}</p>
+                    <p><strong>Konu:</strong> ${weekData.topic || 'Belirtilmemiş'}</p>
+                    <p><strong>Kazanımlar:</strong> ${weekData.outcomes || 'Belirtilmemiş'}</p>
+                    <p class="mt-2"><strong>Süreç/Açıklamalar:</strong> ${weekData.process || 'Belirtilmemiş'}</p>
+                `;
+            } else {
+                container.innerHTML = `<p class="text-center text-gray-400">${grade}. sınıf için bu haftaya (${weekNumber}. Hafta) ait kazanım bilgisi bulunamadı.</p>`;
+            }
         };
 
         const updateTimeAndLessons = () => {
@@ -412,24 +459,29 @@
             const key = `${day}-${hourIndex}`;
             const lesson = scheduleData[key] || { name: '', notes: {} };
             const today = new Date().toISOString().split('T')[0];
-            modalTitle.textContent = `${day} - ${hours[hourIndex]}`;
-            lessonNameInput.value = lesson.name;
-            noteDateInput.value = today;
-            lessonNoteInput.value = lesson.notes[today] || '';
+            document.getElementById('modal-title').textContent = `${day} - ${hours[hourIndex]}`;
+            document.getElementById('lesson-name').value = lesson.name || '';
+            document.getElementById('note-date').value = today;
+            document.getElementById('lesson-note').value = (lesson.notes && lesson.notes[today]) || '';
             modal.classList.remove('hidden');
         };
 
+        const modal = document.getElementById('lesson-modal');
         const closeModal = () => modal.classList.add('hidden');
         
         document.getElementById('save-button').addEventListener('click', () => {
             const { day, hourIndex } = currentCell;
             const key = `${day}-${hourIndex}`;
             if (!scheduleData[key]) scheduleData[key] = { name: '', notes: {} };
-            scheduleData[key].name = lessonNameInput.value.trim();
-            const noteDate = noteDateInput.value;
-            const noteText = lessonNoteInput.value.trim();
-            if (noteText) scheduleData[key].notes[noteDate] = noteText;
-            else delete scheduleData[key].notes[noteDate];
+            scheduleData[key].name = document.getElementById('lesson-name').value.trim();
+            const noteDate = document.getElementById('note-date').value;
+            const noteText = document.getElementById('lesson-note').value.trim();
+            if (noteText) {
+                 if(!scheduleData[key].notes) scheduleData[key].notes = {};
+                 scheduleData[key].notes[noteDate] = noteText;
+            } else {
+                if(scheduleData[key].notes) delete scheduleData[key].notes[noteDate];
+            }
             saveDataToFirestore();
             closeModal();
         });
@@ -443,15 +495,15 @@
         });
 
         document.getElementById('today-button').addEventListener('click', () => {
-            noteDateInput.value = new Date().toISOString().split('T')[0];
-            noteDateInput.dispatchEvent(new Event('change'));
+            document.getElementById('note-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('note-date').dispatchEvent(new Event('change'));
         });
 
-        noteDateInput.addEventListener('change', (e) => {
+        document.getElementById('note-date').addEventListener('change', (e) => {
             const { day, hourIndex } = currentCell;
             const key = `${day}-${hourIndex}`;
             const lesson = scheduleData[key] || { notes: {} };
-            lessonNoteInput.value = lesson.notes[e.target.value] || '';
+            document.getElementById('lesson-note').value = (lesson.notes && lesson.notes[e.target.value]) || '';
         });
 
         document.getElementById('cancel-button').addEventListener('click', closeModal);
@@ -472,6 +524,9 @@
             document.getElementById(`${tabName}-tab`).classList.remove('hidden');
             document.querySelectorAll('.tab-button').forEach(button => button.classList.remove('active'));
             document.querySelector(`button[onclick="changeTab('${tabName}')"]`).classList.add('active');
+            const futureNotesContainer = document.getElementById('future-notes-container');
+            if (tabName === 'schedule') futureNotesContainer.classList.remove('hidden');
+            else futureNotesContainer.classList.add('hidden');
         };
 
         const createNotification = (message, type = 'info', duration = 5000) => {
@@ -521,15 +576,12 @@
         const fileImporter = document.getElementById('file-importer');
         let importType = '';
 
-        document.getElementById('import-schedule-button').addEventListener('click', () => {
-            importType = 'schedule';
-            fileImporter.click();
-        });
-
-        document.getElementById('import-calendar-button').addEventListener('click', () => {
-            importType = 'calendar';
-            fileImporter.click();
-        });
+        document.getElementById('import-schedule-button').addEventListener('click', () => { importType = 'schedule'; fileImporter.click(); });
+        document.getElementById('import-calendar-button').addEventListener('click', () => { importType = 'calendar'; fileImporter.click(); });
+        document.getElementById('import-acquisitions-9-button').addEventListener('click', () => { importType = 'acquisitions9'; fileImporter.click(); });
+        document.getElementById('import-acquisitions-10-button').addEventListener('click', () => { importType = 'acquisitions10'; fileImporter.click(); });
+        document.getElementById('import-acquisitions-11-button').addEventListener('click', () => { importType = 'acquisitions11'; fileImporter.click(); });
+        document.getElementById('import-acquisitions-12-button').addEventListener('click', () => { importType = 'acquisitions12'; fileImporter.click(); });
 
         fileImporter.addEventListener('change', (event) => {
             const file = event.target.files[0];
@@ -540,24 +592,38 @@
                     const content = JSON.parse(e.target.result);
                     if (importType === 'schedule') scheduleData = content;
                     else if (importType === 'calendar') academicCalendar = content;
+                    else if (importType === 'acquisitions9') acquisitions9Data = content;
+                    else if (importType === 'acquisitions10') acquisitions10Data = content;
+                    else if (importType === 'acquisitions11') acquisitions11Data = content;
+                    else if (importType === 'acquisitions12') acquisitions12Data = content;
                     saveDataToFirestore();
                     createNotification('Veri başarıyla içe aktarıldı.', 'success');
-                } catch (error) {
-                    createNotification('Geçersiz dosya formatı.', 'error');
-                }
+                } catch (error) { createNotification('Geçersiz dosya formatı.', 'error'); }
             };
             reader.readAsText(file);
             event.target.value = null;
         });
             
-        const formatDate = (dateString) => {
-            const date = new Date(dateString);
-            const userTimezoneOffset = date.getTimezoneOffset() * 60000;
-            return new Date(date.getTime() + userTimezoneOffset).toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric', weekday: 'long' });
+        const formatDate = (dateString, options = {}) => {
+            const date = new Date(dateString.replace(/-/g, '/'));
+            const defaultOptions = { day: '2-digit', month: 'long', year: 'numeric', weekday: 'long' };
+            return date.toLocaleDateString('tr-TR', { ...defaultOptions, ...options });
         };
+        
+        const initialAcquisitions9 = [
+            { week: 1, dateRange: "08-12 Eylül", theme: "SÖZÜN İNCELİĞİ", outcomes: "Okumayı yönetebilme", process: "Okuma amacını belirler, metnin türüne yönelik tahminlerde bulunur." },
+            { week: 2, dateRange: "15-19 Eylül", theme: "SÖZÜN İNCELİĞİ", outcomes: "Anlam oluşturabilme", process: "Edebiyatın güzel sanatlarla ilişkisini belirler, metindeki açık ve örtük iletiyi bulur." },
+            { week: 3, dateRange: "22-26 Eylül", theme: "SÖZÜN İNCELİĞİ", outcomes: "Anlam oluşturabilme (devam)", process: "Metnin temasını, söz sanatlarını ve yazarla ilişkisini belirler." },
+            { week: 4, dateRange: "29 Eylül-03 Ekim", theme: "SÖZÜN İNCELİĞİ", outcomes: "Yazma sürecini yönetebilme", process: "Yazma amacına karar verir, hedef kitleye göre metin türünü belirler." },
+        ];
+        const initialAcquisitions12 = [
+             { week: 1, dateRange: "08-12 Eylül", theme: "GİRİŞ", topic: "Edebiyat ve Düşünce Akımları", outcomes: "Edebî eserlerin felsefi bir anlayışı yansıtabileceği üzerinde durulur.", process: "15 Temmuz Demokrasi ve Milli Birlik Günü anılır. Metinden hareketle dil bilgisi çalışmaları yapılır." },
+             { week: 2, dateRange: "15-19 Eylül", theme: "GİRİŞ", topic: "Yazma ve Sunum", outcomes: "Toplumsal değişimin dili nasıl etkilediği hakkında yazı yazar.", process: "Teknolojik terimler üzerine sunum yapılır." },
+             { week: 3, dateRange: "22-26 Eylül", theme: "HİKÂYE", topic: "1960 Sonrası Hikâye", outcomes: "Metnin türünün tarihsel dönem ile ilişkisini, tema ve konusunu belirler.", process: "Metindeki çatışmalar ve olay örgüsü belirlenir." },
+             { week: 4, dateRange: "29 Eylül - 03 Ekim", topic: "1960 Sonrası Hikâye", outcomes: "Metindeki şahıs kadrosu, zaman ve mekânın özelliklerini belirler.", process: "Anlatıcı ve bakış açısının işlevi incelenir." }
+        ];
 
         startApp();
-
     </script>
 </body>
 </html>
