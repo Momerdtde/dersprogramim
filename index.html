@@ -22,13 +22,6 @@
             padding: 1.5rem;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             padding-top: 1rem;
-            position: relative;
-        }
-        .settings-button {
-            position: absolute;
-            top: 1.5rem;
-            right: 1.5rem;
-            z-index: 50;
         }
         .neon-text {
             font-family: 'Orbitron', sans-serif;
@@ -49,7 +42,7 @@
         .tab-button { background-color: #374151; transition: all 0.3s ease; }
         .tab-button.active { background-color: #2563EB; color: #FFFFFF; }
         table { border-collapse: collapse; width: 100%; table-layout: fixed; }
-        th, td { border: 1px solid #2c3e50; padding: 8px; text-align: center; min-width: 100px; height: 60px; position: relative; transition: background-color 0.3s; }
+        th, td { border: 1px solid #2c3e50; padding: 8px; text-align: center; height: 60px; position: relative; transition: background-color 0.3s; }
         th { background-color: #2c3e50; color: white; font-weight: bold; }
         th.day-header, th.time-header { border: 2px solid #10B981; }
         td:hover { background-color: #4a5568; cursor: pointer; }
@@ -62,16 +55,28 @@
         .note-indicator { position: absolute; bottom: 4px; left: 4px; font-size: 0.8rem; }
         .modal { background-color: rgba(0,0,0,0.7); z-index: 100; }
         .notification { transition: opacity 0.5s, transform 0.5s; }
-        .header-info-container { display: flex; flex-direction: column; align-items: center; gap: 0.25rem; margin-bottom: 1.5rem; }
-        .settings-modal-content {
-            max-height: 90vh;
-            overflow-y: auto;
+        .settings-modal-content { max-height: 90vh; overflow-y: auto; }
+
+        /* Mobil Cihazlar İçin Özel Stiller */
+        @media (max-width: 640px) {
+            body { padding: 0.5rem; }
+            .app-container { padding: 1rem; }
+            th, td {
+                font-size: 0.75rem;
+                padding: 4px 2px;
+                min-width: 50px;
+                height: 50px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            .time-header { font-size: 0.65rem; }
         }
     </style>
 </head>
 <body class="bg-gray-900">
 
-    <div id="auth-container" class="max-w-md mx-auto mt-10">
+    <div id="auth-container" class="max-w-md mx-auto mt-10 p-4">
         <div class="bg-slate-800 p-8 rounded-lg shadow-xl">
             <h2 class="text-2xl font-bold text-center text-white mb-6">Giriş Yap veya Kayıt Ol</h2>
             <div id="auth-error" class="bg-red-500 text-white p-3 rounded-lg mb-4 text-center hidden"></div>
@@ -88,16 +93,18 @@
 
     <div id="app-wrapper" class="hidden">
         <div class="app-container">
-            <button id="settings-icon-button" class="settings-button text-gray-300 hover:text-white">
-                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-            </button>
-            <div class="header-info-container text-center">
-                <div>
+            <div class="relative flex items-center justify-center text-center mb-4">
+                <div class="flex-grow">
                     <h1 id="user-name" class="text-3xl font-bold text-white"></h1>
                     <p id="user-branch" class="text-lg text-blue-300"></p>
                 </div>
-                <p class="text-md text-gray-400">Derslerinizi ve notlarınızı kolayca yönetin.</p>
+                <button id="settings-icon-button" class="absolute top-0 right-0 text-gray-300 hover:text-white p-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                </button>
             </div>
+            
+            <p class="text-md text-gray-400 text-center mb-6 -mt-4">Derslerinizi ve notlarınızı kolayca yönetin.</p>
+
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 text-center">
                 <div class="bg-slate-700 p-4 rounded-lg"><p class="font-semibold text-blue-300">Tarih ve Saat</p><p id="current-time" class="text-xl font-mono"></p></div>
                 <div class="bg-slate-700 p-4 rounded-lg"><p class="font-semibold text-green-300">Şu Anki Ders</p><p id="current-lesson-info" class="text-xl"></p><p id="current-lesson-note-preview" class="text-sm text-yellow-300 mt-1 truncate"></p></div>
@@ -116,7 +123,7 @@
             </div>
 
             <div id="app-content">
-                <div id="schedule-tab" class="tab-content"><div class="overflow-x-auto"><table class="min-w-full bg-slate-800 border-collapse"><thead><tr><th class="w-24 time-header">Saat</th><th class="day-header">Pazartesi</th><th class="day-header">Salı</th><th class="day-header">Çarşamba</th><th class="day-header">Perşembe</th><th class="day-header">Cuma</th></tr></thead><tbody id="schedule-body"></tbody></table></div></div>
+                <div id="schedule-tab" class="tab-content"><div class="overflow-x-auto"><table class="min-w-full bg-slate-800 border-collapse"><thead><tr id="schedule-header"></tr></thead><tbody id="schedule-body"></tbody></table></div></div>
                 <div id="calendar-tab" class="tab-content hidden"><h2 class="text-2xl font-bold mb-4 text-center text-white">Akademik Takvim</h2><ul id="academic-calendar-list" class="space-y-3"></ul></div>
                 <div id="holidays-tab" class="tab-content hidden"><h2 class="text-2xl font-bold mb-4 text-center text-white">Resmî Tatiller (2025-2026)</h2><ul id="public-holidays-list" class="space-y-3"></ul></div>
                 
@@ -277,6 +284,7 @@
         
         // --- UI & RENDER FUNCTIONS ---
         const days = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma'];
+        const shortDays = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum'];
         const hours = ['09:00 - 09:40', '09:50 - 10:30', '10:40 - 11:20', '11:30 - 12:10', '12:20 - 13:00', '13:40 - 14:20', '14:30 - 15:10', '15:20 - 16:00'];
         const publicHolidays = [{ date: "2025-10-28", event: "Cumhuriyet Bayramı Arifesi (Öğleden sonra)" }, { date: "2025-10-29", event: "Cumhuriyet Bayramı" }, { date: "2025-12-31", event: "Yılbaşı Gecesi" }, { date: "2026-01-01", event: "Yılbaşı" }, { date: "2026-03-19", event: "Ramazan Bayramı Arifesi (Öğleden sonra)" }, { date: "2026-03-20", event: "Ramazan Bayramı 1. Gün" }, { date: "2026-03-21", event: "Ramazan Bayramı 2. Gün" }, { date: "2026-03-22", event: "Ramazan Bayramı 3. Gün" }, { date: "2026-04-23", event: "Ulusal Egemenlik ve Çocuk Bayramı" }, { date: "2026-05-01", event: "Emek ve Dayanışma Günü" }, { date: "2026-05-19", event: "Atatürk’ü Anma, Gençlik ve Spor Bayramı" }, { date: "2026-05-26", event: "Kurban Bayramı Arifesi (Öğleden sonra)" }, { date: "2026-05-27", event: "Kurban Bayramı 1. Gün" }, { date: "2026-05-28", event: "Kurban Bayramı 2. Gün" }, { date: "2026-05-29", event: "Kurban Bayramı 3. Gün" }, { date: "2026-05-30", event: "Kurban Bayramı 4. Gün" }, { date: "2026-07-15", event: "Demokrasi ve Millî Birlik Günü" }, { date: "2026-08-30", event: "Zafer Bayramı" }];
         const classColors = { '12-C': 'border-2 border-blue-500', '9-C': 'border-2 border-green-500', '9-I': 'border-2 border-yellow-500', '9-D': 'border-2 border-red-500' };
@@ -287,15 +295,28 @@
             updateTimeAndLessons();
             setInterval(updateTimeAndLessons, 1000);
             changeTab('schedule');
+            window.addEventListener('resize', renderSchedule); // Re-render on resize for mobile view
         };
 
         const renderSchedule = () => {
+            const isMobile = window.innerWidth < 640;
+            const scheduleHeader = document.getElementById('schedule-header');
+            scheduleHeader.innerHTML = '';
             const scheduleBody = document.getElementById('schedule-body');
             scheduleBody.innerHTML = '';
+
+            // Render Header
+            let headerHTML = '<th class="time-header">Saat</th>';
+            (isMobile ? shortDays : days).forEach(day => {
+                headerHTML += `<th class="day-header">${day}</th>`;
+            });
+            scheduleHeader.innerHTML = headerHTML;
+            
+            // Render Body
             hours.forEach((hour, hourIndex) => {
                 const row = document.createElement('tr');
                 const timeCell = document.createElement('th');
-                timeCell.textContent = hour;
+                timeCell.textContent = hour.replace(/\s/g, '');
                 timeCell.classList.add('time-header');
                 row.appendChild(timeCell);
                 days.forEach(day => {
@@ -304,7 +325,9 @@
                     const key = `${day}-${hourIndex}`;
                     const lesson = scheduleData[key];
                     if (lesson && lesson.name) {
-                        cell.textContent = lesson.name;
+                        const match = lesson.name.match(/\(([^)]+)\)/);
+                        cell.textContent = (isMobile && match) ? match[1].replace(/\s/g, '') : lesson.name;
+
                         let hasUpcomingNote = false;
                         if (lesson.notes) {
                             const today = new Date(); today.setHours(0, 0, 0, 0);
@@ -314,10 +337,9 @@
                             }
                         }
                         if (hasUpcomingNote) cell.innerHTML += `<span class="note-indicator">📝</span>`;
-                        const classNameMatch = lesson.name.match(/\(([^)]+)\)/);
-                        if (classNameMatch && classNameMatch[1]) {
-                            const className = classNameMatch[1].trim();
-                            if (classColors[className]) cell.className += ` ${classColors[className]}`;
+                        
+                        if (match && classColors[match[1].trim()]) {
+                            cell.className += ` ${classColors[match[1].trim()]}`;
                         }
                     }
                     cell.addEventListener('click', () => openModal(day, hourIndex));
@@ -385,29 +407,14 @@
 
         window.showAcquisitions = (grade) => {
             const container = document.getElementById('acquisitions-content');
-            const dataMap = {
-                9: acquisitions9Data,
-                10: acquisitions10Data,
-                11: acquisitions11Data,
-                12: acquisitions12Data,
-            };
+            const dataMap = { 9: acquisitions9Data, 10: acquisitions10Data, 11: acquisitions11Data, 12: acquisitions12Data };
             const data = dataMap[grade] || [];
-
-            // Okulun başlangıç tarihini 2025-2026 eğitim yılına göre ayarla
             const schoolStartDate = new Date('2025-09-08'); 
             const today = new Date();
-            
-            if (today < schoolStartDate) {
-                 container.innerHTML = `<p class="text-center text-gray-400">2025-2026 eğitim-öğretim yılı henüz başlamadı.</p>`;
-                 return;
-            }
-
+            if (today < schoolStartDate) { container.innerHTML = `<p class="text-center text-gray-400">2025-2026 eğitim-öğretim yılı henüz başlamadı.</p>`; return; }
             const oneDay = 24 * 60 * 60 * 1000;
-            // Hafta numarasını okulun başlangıcına göre hesapla
-            const weekNumber = Math.ceil(((today - schoolStartDate) / oneDay + schoolStartDate.getDay()) / 7);
-
+            const weekNumber = Math.ceil(((today - schoolStartDate) / oneDay + schoolStartDate.getDay() -1) / 7);
             const weekData = data.find(w => w.week === weekNumber);
-
             if (weekData) {
                 container.innerHTML = `
                     <h4 class="font-bold text-lg mb-2 text-yellow-300">Hafta ${weekNumber}: ${weekData.dateRange}</h4>
@@ -416,9 +423,7 @@
                     <p><strong>Kazanımlar:</strong> ${weekData.outcomes || 'Belirtilmemiş'}</p>
                     <p class="mt-2"><strong>Süreç/Açıklamalar:</strong> ${weekData.process || 'Belirtilmemiş'}</p>
                 `;
-            } else {
-                container.innerHTML = `<p class="text-center text-gray-400">${grade}. sınıf için bu haftaya (${weekNumber}. Hafta) ait kazanım bilgisi bulunamadı.</p>`;
-            }
+            } else { container.innerHTML = `<p class="text-center text-gray-400">${grade}. sınıf için bu haftaya (${weekNumber}. Hafta) ait kazanım bilgisi bulunamadı.</p>`; }
         };
 
         const updateTimeAndLessons = () => {
@@ -575,13 +580,14 @@
             
         const fileImporter = document.getElementById('file-importer');
         let importType = '';
-
-        document.getElementById('import-schedule-button').addEventListener('click', () => { importType = 'schedule'; fileImporter.click(); });
-        document.getElementById('import-calendar-button').addEventListener('click', () => { importType = 'calendar'; fileImporter.click(); });
-        document.getElementById('import-acquisitions-9-button').addEventListener('click', () => { importType = 'acquisitions9'; fileImporter.click(); });
-        document.getElementById('import-acquisitions-10-button').addEventListener('click', () => { importType = 'acquisitions10'; fileImporter.click(); });
-        document.getElementById('import-acquisitions-11-button').addEventListener('click', () => { importType = 'acquisitions11'; fileImporter.click(); });
-        document.getElementById('import-acquisitions-12-button').addEventListener('click', () => { importType = 'acquisitions12'; fileImporter.click(); });
+        const importButtons = {
+            'schedule': 'import-schedule-button', 'calendar': 'import-calendar-button',
+            'acquisitions9': 'import-acquisitions-9-button', 'acquisitions10': 'import-acquisitions-10-button',
+            'acquisitions11': 'import-acquisitions-11-button', 'acquisitions12': 'import-acquisitions-12-button'
+        };
+        for(const type in importButtons) {
+            document.getElementById(importButtons[type]).addEventListener('click', () => { importType = type; fileImporter.click(); });
+        }
 
         fileImporter.addEventListener('change', (event) => {
             const file = event.target.files[0];
@@ -610,18 +616,8 @@
             return date.toLocaleDateString('tr-TR', { ...defaultOptions, ...options });
         };
         
-        const initialAcquisitions9 = [
-            { week: 1, dateRange: "08-12 Eylül", theme: "SÖZÜN İNCELİĞİ", outcomes: "Okumayı yönetebilme", process: "Okuma amacını belirler, metnin türüne yönelik tahminlerde bulunur." },
-            { week: 2, dateRange: "15-19 Eylül", theme: "SÖZÜN İNCELİĞİ", outcomes: "Anlam oluşturabilme", process: "Edebiyatın güzel sanatlarla ilişkisini belirler, metindeki açık ve örtük iletiyi bulur." },
-            { week: 3, dateRange: "22-26 Eylül", theme: "SÖZÜN İNCELİĞİ", outcomes: "Anlam oluşturabilme (devam)", process: "Metnin temasını, söz sanatlarını ve yazarla ilişkisini belirler." },
-            { week: 4, dateRange: "29 Eylül-03 Ekim", theme: "SÖZÜN İNCELİĞİ", outcomes: "Yazma sürecini yönetebilme", process: "Yazma amacına karar verir, hedef kitleye göre metin türünü belirler." },
-        ];
-        const initialAcquisitions12 = [
-             { week: 1, dateRange: "08-12 Eylül", theme: "GİRİŞ", topic: "Edebiyat ve Düşünce Akımları", outcomes: "Edebî eserlerin felsefi bir anlayışı yansıtabileceği üzerinde durulur.", process: "15 Temmuz Demokrasi ve Milli Birlik Günü anılır. Metinden hareketle dil bilgisi çalışmaları yapılır." },
-             { week: 2, dateRange: "15-19 Eylül", theme: "GİRİŞ", topic: "Yazma ve Sunum", outcomes: "Toplumsal değişimin dili nasıl etkilediği hakkında yazı yazar.", process: "Teknolojik terimler üzerine sunum yapılır." },
-             { week: 3, dateRange: "22-26 Eylül", theme: "HİKÂYE", topic: "1960 Sonrası Hikâye", outcomes: "Metnin türünün tarihsel dönem ile ilişkisini, tema ve konusunu belirler.", process: "Metindeki çatışmalar ve olay örgüsü belirlenir." },
-             { week: 4, dateRange: "29 Eylül - 03 Ekim", topic: "1960 Sonrası Hikâye", outcomes: "Metindeki şahıs kadrosu, zaman ve mekânın özelliklerini belirler.", process: "Anlatıcı ve bakış açısının işlevi incelenir." }
-        ];
+        const initialAcquisitions9 = [ { week: 1, dateRange: "08-12 Eylül", theme: "SÖZÜN İNCELİĞİ", outcomes: "Okumayı yönetebilme", process: "Okuma amacını belirler, metnin türüne yönelik tahminlerde bulunur." }, { week: 2, dateRange: "15-19 Eylül", theme: "SÖZÜN İNCELİĞİ", outcomes: "Anlam oluşturabilme", process: "Edebiyatın güzel sanatlarla ilişkisini belirler, metindeki açık ve örtük iletiyi bulur." }, { week: 3, dateRange: "22-26 Eylül", theme: "SÖZÜN İNCELİĞİ", outcomes: "Anlam oluşturabilme (devam)", process: "Metnin temasını, söz sanatlarını ve yazarla ilişkisini belirler." }, { week: 4, dateRange: "29 Eylül-03 Ekim", theme: "SÖZÜN İNCELİĞİ", outcomes: "Yazma sürecini yönetebilme", process: "Yazma amacına karar verir, hedef kitleye göre metin türünü belirler." }, ];
+        const initialAcquisitions12 = [ { week: 1, dateRange: "08-12 Eylül", theme: "GİRİŞ", topic: "Edebiyat ve Düşünce Akımları", outcomes: "Edebî eserlerin felsefi bir anlayışı yansıtabileceği üzerinde durulur.", process: "15 Temmuz Demokrasi ve Milli Birlik Günü anılır. Metinden hareketle dil bilgisi çalışmaları yapılır." }, { week: 2, dateRange: "15-19 Eylül", theme: "GİRİŞ", topic: "Yazma ve Sunum", outcomes: "Toplumsal değişimin dili nasıl etkilediği hakkında yazı yazar.", process: "Teknolojik terimler üzerine sunum yapılır." }, { week: 3, dateRange: "22-26 Eylül", theme: "HİKÂYE", topic: "1960 Sonrası Hikâye", outcomes: "Metnin türünün tarihsel dönem ile ilişkisini, tema ve konusunu belirler.", process: "Metindeki çatışmalar ve olay örgüsü belirlenir." }, { week: 4, dateRange: "29 Eylül - 03 Ekim", theme: "HİKÂYE", topic: "1960 Sonrası Hikâye", outcomes: "Metindeki şahıs kadrosu, zaman ve mekânın özelliklerini belirler.", process: "Anlatıcı ve bakış açısının işlevi incelenir." } ];
 
         startApp();
     </script>
