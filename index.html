@@ -5,509 +5,699 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gelişmiş İnteraktif Ders Programı</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Monoton&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #111827; /* Dark Navy Background */
-            color: #d1d5db; /* Light Gray Text */
-        }
-        .schedule-table th, .schedule-table td {
-            border: 1px solid #374151; /* Darker Border */
-            padding: 8px;
-            text-align: center;
-            min-width: 100px;
-            height: 80px;
-            transition: background-color 0.3s;
-            position: relative;
-        }
-        .schedule-table th {
-            background-color: #1f2937; /* Darker Navy Header */
-            color: #e5e7eb;
-        }
-        .schedule-table td {
-            background-color: #1f2937;
-        }
-        .schedule-table td:hover {
-            background-color: #374151;
-            cursor: pointer;
-        }
-        .current-class {
-            background-color: #10b981 !important; /* Emerald Green */
-            color: #ffffff;
-            font-weight: bold;
-            position: relative;
-        }
-        .current-class::after {
-            content: 'ŞU AN';
-            position: absolute;
-            top: 2px;
-            right: 2px;
-            background-color: #ef4444; /* Red */
-            color: white;
-            padding: 1px 3px;
-            font-size: 8px;
-            border-radius: 4px;
-            font-weight: bold;
-        }
-        .has-note-today::before {
-            content: '📝';
-            position: absolute;
-            bottom: 2px;
-            left: 2px;
-            font-size: 14px;
-            animation: pulse 1.5s infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-        }
-        .nav-link {
-            transition: background-color 0.2s, color 0.2s;
-            color: #d1d5db;
-        }
-        .nav-link.active {
-            background-color: #3b82f6; /* Blue */
-            color: white;
-        }
-        #note-reminder-popup, .announcement-box {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: #374151;
-            color: #e5e7eb;
+            background-color: #1a202c;
+            color: #e2e8f0;
+            margin: 0;
             padding: 1rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            max-width: 320px;
-            z-index: 50;
-            transition: opacity 0.3s, transform 0.3s;
         }
-        #note-reminder-popup.hidden, .announcement-box.hidden {
-            opacity: 0;
-            transform: translateY(20px);
-            pointer-events: none;
+        .app-container {
+            max-width: 1400px;
+            margin: auto;
+            background-color: #2d3748;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            padding-top: 1rem;
+            padding-bottom: 3rem; /* by MOD yazısı için boşluk */
         }
-        .close-btn {
-            position: absolute;
-            top: 8px;
-            right: 12px;
-            cursor: pointer;
-            font-size: 24px;
-            color: #9ca3af;
-            line-height: 1;
-        }
-        .close-btn:hover {
-            color: #e5e7eb;
-        }
-        #neon-text {
-            font-family: 'Monoton', cursive;
-            font-size: 1.25rem; /* Smaller size (20px) */
+        .neon-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem; /* Küçültüldü */
             color: #fff;
-            text-shadow: 
-                0 0 7px #fff,
-                0 0 10px #fff,
-                0 0 21px #fff,
-                0 0 42px #0fa,
-                0 0 82px #0fa,
-                0 0 92px #0fa,
-                0 0 102px #0fa,
-                0 0 151px #0fa;
+            text-shadow:
+                0 0 5px #00aaff,
+                0 0 10px #00aaff,
+                0 0 20px #00aaff,
+                0 0 40px #00aaff,
+                0 0 80px #00aaff;
             animation: flicker 1.5s infinite alternate;
         }
 
         @keyframes flicker {
             0%, 18%, 22%, 25%, 53%, 57%, 100% {
                 text-shadow:
-                0 0 4px #fff,
-                0 0 11px #0fa,
-                0 0 19px #0fa,
-                0 0 40px #0fa,
-                0 0 80px #0fa,
-                0 0 90px #0fa,
-                0 0 100px #0fa,
-                0 0 150px #0fa;
+                0 0 4px #00aaff,
+                0 0 11px #00aaff,
+                0 0 19px #00aaff,
+                0 0 40px #00aaff,
+                0 0 80px #00aaff;
             }
-            20%, 24%, 55% {
+            20%, 24%, 55% {       
                 text-shadow: none;
             }
         }
+
+        .tab-button {
+            transition: all 0.3s ease;
+        }
+
+        .tab-button.active {
+            background-color: #4A5568;
+            color: #F7FAFC;
+            border-bottom: 2px solid #63B3ED;
+        }
+        
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        th, td {
+            border: 1px solid #2c3e50;
+            padding: 8px;
+            text-align: center;
+            min-width: 100px;
+            height: 60px;
+            position: relative;
+            transition: background-color 0.3s;
+        }
+
+        th {
+            background-color: #2c3e50;
+            color: white;
+            font-weight: bold;
+        }
+        
+        th.day-header, th.time-header {
+            border: 2px solid #10B981;
+        }
+
+        td:hover {
+            background-color: #4a5568;
+            cursor: pointer;
+        }
+        
+        .current-lesson {
+            background-color: #2f855a !important;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(47, 133, 90, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(47, 133, 90, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(47, 133, 90, 0); }
+        }
+        
+        .note-indicator {
+            position: absolute;
+            bottom: 4px;
+            left: 4px;
+            font-size: 0.8rem;
+        }
+
+        .modal {
+            background-color: rgba(0,0,0,0.7);
+        }
+
+        .notification {
+            transition: opacity 0.5s, transform 0.5s;
+        }
+        
+        .header-info-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem; /* Yazılar arası boşluk */
+            margin-bottom: 1.5rem;
+        }
     </style>
 </head>
-<body class="text-gray-300">
+<body class="bg-gray-900">
 
-    <div class="max-w-7xl mx-auto p-4 md:p-8 mt-16 mb-8">
-        <header class="text-center mb-6">
-            <h1 class="text-3xl md:text-4xl font-bold text-gray-100">İnteraktif Ders Programım</h1>
-            <div class="mt-2 flex flex-col items-center justify-center space-y-1 px-4">
-                <div id="user-display-header" class="text-lg sm:text-xl text-blue-400 font-medium break-words w-full"></div>
-                <p class="text-sm sm:text-md text-gray-400">Derslerinizi ve notlarınızı kolayca yönetin.</p>
+    <div class="app-container">
+        <!-- Başlık ve Kullanıcı Bilgileri -->
+        <div class="header-info-container text-center">
+            <div>
+                <h1 id="user-name" class="text-3xl font-bold text-white"></h1>
+                <p id="user-branch" class="text-lg text-blue-300"></p>
             </div>
-        </header>
+            <p class="text-md text-gray-400">Derslerinizi ve notlarınızı kolayca yönetin.</p>
+        </div>
 
-        <nav class="flex justify-center bg-gray-800 rounded-lg shadow-md mb-6 p-2 space-x-2">
-            <button id="nav-schedule" class="nav-link px-4 py-2 rounded-md font-semibold hover:bg-gray-700">Ders Programı</button>
-            <button id="nav-calendar" class="nav-link px-4 py-2 rounded-md font-semibold hover:bg-gray-700">Akademik Takvim</button>
-            <button id="nav-settings" class="nav-link px-4 py-2 rounded-md font-semibold hover:bg-gray-700">Ayarlar</button>
-        </nav>
+        <!-- Anlık Durum Paneli -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 text-center">
+            <div class="bg-slate-700 p-4 rounded-lg">
+                <p class="font-semibold text-blue-300">Tarih ve Saat</p>
+                <p id="current-time" class="text-xl font-mono"></p>
+            </div>
+            <div class="bg-slate-700 p-4 rounded-lg">
+                <p class="font-semibold text-green-300">Şu Anki Ders</p>
+                <p id="current-lesson-info" class="text-xl"></p>
+                <p id="current-lesson-note-preview" class="text-sm text-yellow-300 mt-1 truncate"></p>
+            </div>
+            <div class="bg-slate-700 p-4 rounded-lg">
+                <p class="font-semibold text-purple-300">Sonraki Ders</p>
+                <p id="next-lesson-info" class="text-xl"></p>
+            </div>
+        </div>
 
-        <main>
-            <div id="announcements-container" class="mb-4 space-y-3"></div>
-        
-            <div id="schedule-view">
-                <div class="bg-gray-800 p-4 rounded-lg shadow-md mb-6 grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-                    <div> <h2 class="font-bold text-lg text-blue-400">Tarih ve Saat</h2> <p id="current-time" class="text-lg"></p> </div>
-                    <div> <h2 class="font-bold text-lg text-emerald-400">Şu Anki Ders</h2> <p id="current-class-info" class="text-lg">-</p> </div>
-                    <div> <h2 class="font-bold text-lg text-sky-400">Sonraki Ders</h2> <p id="next-class-info" class="text-lg">-</p> </div>
+        <!-- Sekme Navigasyonu -->
+        <div class="mb-4 border-b border-gray-600">
+            <nav class="flex -mb-px flex-wrap">
+                <button class="tab-button active text-gray-300 py-3 px-6 font-medium" onclick="changeTab('schedule')">Ders Programı</button>
+                <button class="tab-button text-gray-300 py-3 px-6 font-medium" onclick="changeTab('calendar')">Akademik Takvim</button>
+                <button class="tab-button text-gray-300 py-3 px-6 font-medium" onclick="changeTab('holidays')">Resmî Tatiller</button>
+                <button class="tab-button text-gray-300 py-3 px-6 font-medium" onclick="changeTab('settings')">Ayarlar</button>
+            </nav>
+        </div>
+
+        <!-- İçerik Alanı -->
+        <div id="app-content">
+            <!-- Ders Programı Sekmesi -->
+            <div id="schedule-tab" class="tab-content">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-slate-800 border-collapse">
+                        <thead>
+                            <tr>
+                                <th class="w-24 time-header">Saat</th>
+                                <th class="day-header">Pazartesi</th>
+                                <th class="day-header">Salı</th>
+                                <th class="day-header">Çarşamba</th>
+                                <th class="day-header">Perşembe</th>
+                                <th class="day-header">Cuma</th>
+                            </tr>
+                        </thead>
+                        <tbody id="schedule-body">
+                            <!-- Ders satırları JavaScript ile doldurulacak -->
+                        </tbody>
+                    </table>
                 </div>
-                <div class="overflow-x-auto bg-gray-800 rounded-lg shadow-md">
-                    <table class="w-full schedule-table"><thead><tr><th>Saat</th><th>Pazartesi</th><th>Salı</th><th>Çarşamba</th><th>Perşembe</th><th>Cuma</th></tr></thead><tbody id="schedule-body"></tbody></table>
-                </div>
             </div>
 
-            <div id="calendar-view" class="hidden bg-gray-800 p-6 rounded-lg shadow-md max-w-3xl mx-auto">
-                <h2 class="text-2xl font-bold mb-6 border-b border-gray-700 pb-4 text-gray-100">Akademik Takvim</h2>
-                <ul id="academic-calendar-list" class="space-y-4"></ul>
+            <!-- Akademik Takvim Sekmesi -->
+            <div id="calendar-tab" class="tab-content hidden">
+                <h2 class="text-2xl font-bold mb-4 text-center text-white">Akademik Takvim</h2>
+                <ul id="academic-calendar-list" class="space-y-3">
+                    <!-- Takvim etkinlikleri JavaScript ile doldurulacak -->
+                </ul>
+            </div>
+            
+            <!-- Resmî Tatiller Sekmesi -->
+            <div id="holidays-tab" class="tab-content hidden">
+                <h2 class="text-2xl font-bold mb-4 text-center text-white">Resmî Tatiller (2025-2026)</h2>
+                <ul id="public-holidays-list" class="space-y-3">
+                    <!-- Tatil günleri JavaScript ile doldurulacak -->
+                </ul>
             </div>
 
-            <div id="settings-view" class="hidden">
-                <div class="bg-gray-800 p-6 rounded-lg shadow-md max-w-2xl mx-auto">
-                    <h2 class="text-2xl font-bold mb-6 border-b border-gray-700 pb-4 text-gray-100">Kullanıcı Ayarları</h2>
-                    <div class="space-y-4">
-                        <input type="text" id="setting-name" class="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 placeholder-gray-400" placeholder="İsim Soyisim">
-                        <input type="text" id="setting-school" class="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 placeholder-gray-400" placeholder="Okul">
-                        <input type="text" id="setting-branch" class="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 placeholder-gray-400" placeholder="Branş">
+            <!-- Ayarlar Sekmesi -->
+            <div id="settings-tab" class="tab-content hidden">
+                <h2 class="text-2xl font-bold mb-6 text-center text-white">Ayarlar</h2>
+                <div class="max-w-md mx-auto space-y-4">
+                    <div>
+                        <label for="name-input" class="block mb-2 text-sm font-medium text-gray-300">İsim Soyisim</label>
+                        <input type="text" id="name-input" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Örn: Muhammed Ömer Doğuç">
                     </div>
-                    <div class="flex justify-end mt-4">
-                        <button id="save-settings-button" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Ayarları Kaydet</button>
+                    <div>
+                        <label for="school-input" class="block mb-2 text-sm font-medium text-gray-300">Okul</label>
+                        <input type="text" id="school-input" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Örn: Turgut Özal Anadolu Lisesi">
                     </div>
-
-                    <div class="mt-8 pt-4 border-t border-gray-700">
-                        <h3 class="text-lg font-semibold mb-2 text-gray-200">Veri Yönetimi</h3>
+                    <div>
+                        <label for="branch-input" class="block mb-2 text-sm font-medium text-gray-300">Branş</label>
+                        <input type="text" id="branch-input" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Örn: Türk Dili ve Edebiyatı">
+                    </div>
+                    <button id="save-settings-button" class="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Ayarları Kaydet</button>
+                
+                    <div class="pt-6">
+                        <h3 class="text-lg font-semibold border-b border-gray-600 pb-2 mb-4">Veri Yönetimi</h3>
                         <div class="flex flex-col sm:flex-row gap-4">
-                            <button id="import-schedule-button" class="flex-1 bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700">Ders Programı İçe Aktar</button>
-                            <input type="file" id="schedule-file-input" class="hidden" accept=".json">
-
-                            <button id="import-calendar-button" class="flex-1 bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700">Akademik Takvim İçe Aktar</button>
-                            <input type="file" id="calendar-file-input" class="hidden" accept=".json">
+                            <button id="import-schedule-button" class="w-full text-white bg-green-600 hover:bg-green-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Ders Programı İçe Aktar</button>
+                            <button id="import-calendar-button" class="w-full text-white bg-purple-600 hover:bg-purple-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Akademik Takvim İçe Aktar</button>
                         </div>
+                        <input type="file" id="file-importer" class="hidden" accept=".json">
                     </div>
                 </div>
-            </div>
-        </main>
-
-        <footer class="text-right mt-12 pr-4">
-             <p id="neon-text">by MOD</p>
-        </footer>
-    </div>
-
-    <div id="modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden opacity-0">
-        <div class="bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md border border-gray-700">
-            <h2 class="text-2xl font-bold mb-4 text-gray-100" id="modal-title"></h2>
-            <div class="space-y-4">
-                <input type="text" id="course-name" class="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 placeholder-gray-400" placeholder="Ders Adı ve Sınıf">
-                <input type="date" id="note-date" class="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3">
-                <textarea id="course-notes" rows="5" class="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 placeholder-gray-400" placeholder="Derse Özel Not..."></textarea>
-            </div>
-            <div class="flex justify-end space-x-3 mt-6">
-                <button id="delete-button" class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700">Dersi Sil</button>
-                <button id="close-modal" class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-500">Kapat</button>
-                <button id="save-button" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Kaydet</button>
             </div>
         </div>
     </div>
     
-    <div id="note-reminder-popup" class="hidden">
-        <span id="note-reminder-close" class="close-btn">&times;</span>
-        <h4 class="font-bold mb-2 text-lg">Bugünün Notu</h4>
-        <p id="note-reminder-content"></p>
+    <!-- İmza -->
+    <div class="w-full text-right pr-4 mt-2">
+         <p class="neon-text">by MOD</p>
     </div>
 
+    <!-- Modal -->
+    <div id="lesson-modal" class="modal fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden">
+        <div class="bg-slate-800 p-6 rounded-lg shadow-xl w-11/12 md:w-1/3">
+            <h2 id="modal-title" class="text-xl font-bold mb-4">Dersi Düzenle</h2>
+            <div class="space-y-4">
+                <div>
+                    <label for="lesson-name" class="block mb-2 text-sm font-medium">Ders Adı ve Sınıf</label>
+                    <input type="text" id="lesson-name" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg block w-full p-2.5" placeholder="Örn: TDE12 (12-E)">
+                </div>
+                <div>
+                    <label for="lesson-note" class="block mb-2 text-sm font-medium">Bu Derse Ait Not</label>
+                    <div class="flex items-center gap-2">
+                        <input type="date" id="note-date" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg p-2.5">
+                        <button id="today-button" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Bugün</button>
+                    </div>
+                    <textarea id="lesson-note" rows="4" class="mt-2 bg-gray-700 border border-gray-600 text-white text-sm rounded-lg block w-full p-2.5" placeholder="Ödev, hatırlatma, sınav tarihi..."></textarea>
+                </div>
+                <div class="flex justify-between items-center mt-6">
+                    <button id="delete-lesson-button" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Dersi Sil</button>
+                    <div>
+                        <button id="cancel-button" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mr-2">İptal</button>
+                        <button id="save-button" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Kaydet</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bildirim Kutuları -->
+    <div id="notification-container" class="fixed bottom-5 right-5 space-y-3 z-50">
+        <!-- Bildirimler JavaScript ile buraya eklenecek -->
+    </div>
+
+
     <script>
-        // --- App State and Constants ---
-        let scheduleData = {}, notesData = {}, settingsData = {};
-        let currentEditingSlot = null;
-        
-        const days = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
-        const periodTimes = [ { start: "09:00", end: "09:40" }, { start: "09:50", end: "10:30" }, { start: "10:40", end: "11:20" }, { start: "11:30", end: "12:10" }, { start: "12:20", end: "13:00" }, { start: "13:40", end: "14:20" }, { start: "14:30", end: "15:10" }, { start: "15:20", end: "16:00" } ];
-        
-        const initialSchedule = {"Pazartesi-0":{name:"TDE12 (12-E)"},"Pazartesi-1":{name:"TDE12 (12-E)"},"Pazartesi-5":{name:"TDE12 (12-C)"},"Pazartesi-6":{name:"TDE12 (12-F)"},"Pazartesi-7":{name:"TDE12 (12-F)"},"Salı-3":{name:"TDE12 (12-E)"},"Salı-4":{name:"TDE12 (12-E)"},"Salı-6":{name:"STED12 (12-D)"},"Salı-7":{name:"STED12 (12-D)"},"Perşembe-3":{name:"TDE12 (12-C)"},"Perşembe-4":{name:"TDE12 (12-I)"},"Perşembe-5":{name:"RHBRLK (12-E)"},"Perşembe-6":{name:"TDE12 (12-F)"},"Perşembe-7":{name:"TDE12 (12-F)"},"Cuma-0":{name:"TDE12 (12-E)"},"Cuma-1":{name:"TDE12 (12-E)"},"Cuma-2":{name:"TDE12 (12-F)"},"Cuma-3":{name:"TDE12 (12-I)"},"Cuma-4":{name:"TDE12 (12-I)"},"Cuma-6":{name:"STED12 (12-D)"},"Cuma-7":{name:"TDE12 (12-C)"}};
-        
-        let academicCalendar = []; 
-        const defaultAcademicCalendar = [ { event: "Ders Yılı Başlangıcı", date: "2024-09-09", type: "event" }, { event: "1. Ara Tatil", date: "2024-11-11", endDate: "2024-11-15", type: "holiday" }, { event: "Yarıyıl Tatili", date: "2025-01-20", endDate: "2025-01-31", type: "holiday" }, { event: "2. Dönem Başlangıcı", date: "2025-02-03", type: "event" }, { event: "2. Ara Tatil", date: "2025-03-31", endDate: "2025-04-04", type: "holiday" }, { event: "Ders Yılı Bitişi", date: "2025-06-20", type: "event" } ];
-        
-        const STORAGE_KEYS = {
-            schedule: 'dersProgrami_schedule_v1',
-            notes: 'dersProgrami_notes_v1',
-            settings: 'dersProgrami_settings_v1',
-            calendar: 'dersProgrami_calendar_v1'
-        };
+        document.addEventListener('DOMContentLoaded', () => {
+            const days = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma'];
+            const hours = [
+                '09:00 - 09:40', '09:50 - 10:30', '10:40 - 11:20', '11:30 - 12:10',
+                '12:20 - 13:00', '13:40 - 14:20', '14:30 - 15:10', '15:20 - 16:00'
+            ];
+            
+            const publicHolidays = [
+                { date: "2025-12-31", event: "Yılbaşı Gecesi" },
+                { date: "2026-01-01", event: "Yılbaşı" },
+                { date: "2026-03-19", event: "Ramazan Bayramı Arifesi (Öğleden sonra)" },
+                { date: "2026-03-20", event: "Ramazan Bayramı 1. Gün" },
+                { date: "2026-03-21", event: "Ramazan Bayramı 2. Gün" },
+                { date: "2026-03-22", event: "Ramazan Bayramı 3. Gün" },
+                { date: "2026-04-23", event: "Ulusal Egemenlik ve Çocuk Bayramı" },
+                { date: "2026-05-01", event: "Emek ve Dayanışma Günü" },
+                { date: "2026-05-19", event: "Atatürk’ü Anma, Gençlik ve Spor Bayramı" },
+                { date: "2026-05-26", event: "Kurban Bayramı Arifesi (Öğleden sonra)" },
+                { date: "2026-05-27", event: "Kurban Bayramı 1. Gün" },
+                { date: "2026-05-28", event: "Kurban Bayramı 2. Gün" },
+                { date: "2026-05-29", event: "Kurban Bayramı 3. Gün" },
+                { date: "2026-05-30", event: "Kurban Bayramı 4. Gün" },
+                { date: "2026-07-15", event: "Demokrasi ve Millî Birlik Günü" },
+                { date: "2026-08-30", event: "Zafer Bayramı" },
+                { date: "2026-10-28", event: "Cumhuriyet Bayramı Arifesi (Öğleden sonra)" },
+                { date: "2026-10-29", event: "Cumhuriyet Bayramı" }
+            ];
 
-        const getTodayDateString = () => new Date().toISOString().split('T')[0];
-        
-        // --- Data Management (localStorage) ---
-        function loadDataFromStorage() {
-            scheduleData = JSON.parse(localStorage.getItem(STORAGE_KEYS.schedule)) || {};
-            notesData = JSON.parse(localStorage.getItem(STORAGE_KEYS.notes)) || {};
-            settingsData = JSON.parse(localStorage.getItem(STORAGE_KEYS.settings)) || {};
-            academicCalendar = JSON.parse(localStorage.getItem(STORAGE_KEYS.calendar)) || defaultAcademicCalendar;
-        }
+            const classColors = {
+                '12-C': 'border-2 border-blue-500',
+                '9-C': 'border-2 border-green-500',
+                '9-I': 'border-2 border-yellow-500',
+                '9-D': 'border-2 border-red-500',
+            };
 
-        function saveDataToStorage() {
-            localStorage.setItem(STORAGE_KEYS.schedule, JSON.stringify(scheduleData));
-            localStorage.setItem(STORAGE_KEYS.notes, JSON.stringify(notesData));
-            localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify(settingsData));
-            localStorage.setItem(STORAGE_KEYS.calendar, JSON.stringify(academicCalendar));
-        }
+            let scheduleData = {};
+            let academicCalendar = [];
+            let currentCell = { day: null, hourIndex: null };
 
-        function initializeApp() {
-            loadDataFromStorage();
-            if (Object.keys(scheduleData).length === 0) {
-                scheduleData = initialSchedule;
-                saveDataToStorage();
-            }
-            loadSettingsToUI();
-            renderSchedule();
-            renderAcademicCalendar();
-            checkAcademicEvents();
-            setInterval(updateCurrentClassDisplay, 10000);
-        }
+            const scheduleBody = document.getElementById('schedule-body');
+            const modal = document.getElementById('lesson-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const lessonNameInput = document.getElementById('lesson-name');
+            const noteDateInput = document.getElementById('note-date');
+            const lessonNoteInput = document.getElementById('lesson-note');
 
-        // --- UI Rendering and State Updates ---
-        function renderSchedule() {
-            const todayDate = getTodayDateString();
-            document.getElementById('schedule-body').innerHTML = periodTimes.map((time, pIndex) => `
-                <tr>
-                    <td class="font-semibold bg-gray-900">${time.start}<br>${time.end}</td>
-                    ${days.slice(1,6).map(day => {
-                        const slotId = `${day}-${pIndex}`;
-                        const slotData = scheduleData[slotId];
-                        const hasNote = notesData[`${slotId}_${todayDate}`]?.text;
-                        return `<td data-day="${day}" data-period="${pIndex}" class="${hasNote ? 'has-note-today' : ''}">${slotData?.name ? `<div class="font-semibold">${slotData.name}</div>` : ''}</td>`;
-                    }).join('')}
-                </tr>
-            `).join('');
-        }
+            // --- LOCAL STORAGE FUNCTIONS ---
+            const saveData = () => {
+                const appData = {
+                    schedule: scheduleData,
+                    calendar: academicCalendar,
+                    settings: {
+                        name: document.getElementById('name-input').value,
+                        school: document.getElementById('school-input').value,
+                        branch: document.getElementById('branch-input').value,
+                    }
+                };
+                localStorage.setItem('dersProgramiApp', JSON.stringify(appData));
+            };
 
-        function updateCurrentClassDisplay() {
-            const now = new Date();
-            const currentDayStr = days[now.getDay()];
-            const currentTimeStr = now.toTimeString().substring(0, 5);
-            document.getElementById('current-time').textContent = `${currentDayStr}, ${now.toLocaleTimeString('tr-TR')}`;
-            document.querySelectorAll('.current-class').forEach(el => el.classList.remove('current-class'));
-            let currentClass = null, nextClass = null;
-            const popup = document.getElementById('note-reminder-popup');
-            popup.classList.add('hidden');
-            if (currentDayStr !== "Cumartesi" && currentDayStr !== "Pazar") {
-                for (let i = 0; i < periodTimes.length; i++) {
-                    const slotId = `${currentDayStr}-${i}`;
-                    const slotData = scheduleData[slotId];
-                    if (currentTimeStr >= periodTimes[i].start && currentTimeStr <= periodTimes[i].end && slotData) {
-                        currentClass = {...slotData, note: notesData[`${slotId}_${getTodayDateString()}`]?.text};
-                        document.querySelector(`[data-day='${currentDayStr}'][data-period='${i}']`)?.classList.add('current-class');
-                        if (currentClass.note) {
-                            document.getElementById('note-reminder-content').innerText = currentClass.note;
-                            popup.classList.remove('hidden');
+            const loadData = () => {
+                const savedData = localStorage.getItem('dersProgramiApp');
+                if (savedData) {
+                    const appData = JSON.parse(savedData);
+                    scheduleData = appData.schedule || {};
+                    academicCalendar = appData.calendar || [];
+                    if(appData.settings) {
+                        document.getElementById('name-input').value = appData.settings.name || '';
+                        document.getElementById('school-input').value = appData.settings.school || '';
+                        document.getElementById('branch-input').value = appData.settings.branch || '';
+                        updateHeaderInfo();
+                    }
+                }
+            };
+            
+            // --- UI INITIALIZATION ---
+            const initializeApp = () => {
+                loadData();
+                renderSchedule();
+                renderAcademicCalendar();
+                renderPublicHolidays();
+                updateTimeAndLessons();
+                setInterval(updateTimeAndLessons, 1000);
+            };
+
+            // --- SCHEDULE RENDERING ---
+            const renderSchedule = () => {
+                scheduleBody.innerHTML = '';
+                hours.forEach((hour, hourIndex) => {
+                    const row = document.createElement('tr');
+                    const timeCell = document.createElement('th');
+                    timeCell.textContent = hour;
+                    timeCell.classList.add('time-header');
+                    row.appendChild(timeCell);
+
+                    days.forEach(day => {
+                        const cell = document.createElement('td');
+                        cell.dataset.day = day;
+                        cell.dataset.hourIndex = hourIndex;
+                        const key = `${day}-${hourIndex}`;
+                        const lesson = scheduleData[key];
+
+                        if (lesson && lesson.name) {
+                            cell.textContent = lesson.name;
+                            const today = new Date().toISOString().split('T')[0];
+                            if (lesson.notes && lesson.notes[today]) {
+                                cell.innerHTML += `<span class="note-indicator">📝</span>`;
+                            }
+                            // Renk kodlaması
+                            const classNameMatch = lesson.name.match(/\(([^)]+)\)/);
+                            if (classNameMatch && classNameMatch[1]) {
+                                const className = classNameMatch[1];
+                                if (classColors[className]) {
+                                    cell.className += ` ${classColors[className]}`;
+                                }
+                            }
+                        }
+                        
+                        cell.addEventListener('click', () => openModal(day, hourIndex));
+                        row.appendChild(cell);
+                    });
+                    scheduleBody.appendChild(row);
+                });
+            };
+
+            // --- CALENDAR & HOLIDAYS RENDERING ---
+            const renderAcademicCalendar = () => {
+                const calendarList = document.getElementById('academic-calendar-list');
+                calendarList.innerHTML = '';
+                 if (!academicCalendar || academicCalendar.length === 0) {
+                    calendarList.innerHTML = '<li class="text-center text-gray-400">Akademik takvim verisi bulunmuyor. Lütfen Ayarlar\'dan içe aktarın.</li>';
+                    return;
+                }
+                academicCalendar.forEach(item => {
+                    const li = document.createElement('li');
+                    li.className = 'bg-slate-700 p-4 rounded-lg flex justify-between items-center';
+                    const dateText = item.endDate ? `${formatDate(item.date)} - ${formatDate(item.endDate)}` : formatDate(item.date);
+                    li.innerHTML = `
+                        <span class="font-semibold text-white">${item.event}</span>
+                        <span class="text-sm text-blue-300">${dateText}</span>
+                    `;
+                    calendarList.appendChild(li);
+                });
+            };
+
+            const renderPublicHolidays = () => {
+                const holidaysList = document.getElementById('public-holidays-list');
+                holidaysList.innerHTML = '';
+                publicHolidays.forEach(holiday => {
+                    const li = document.createElement('li');
+                    li.className = 'bg-slate-700 p-4 rounded-lg flex justify-between items-center';
+                    li.innerHTML = `
+                        <span class="font-semibold text-white">${holiday.event}</span>
+                        <span class="text-sm text-blue-300">${formatDate(holiday.date)}</span>
+                    `;
+                    holidaysList.appendChild(li);
+                });
+            };
+
+            // --- TIME AND LESSON STATUS UPDATE ---
+            const updateTimeAndLessons = () => {
+                const now = new Date();
+                const dayName = days[now.getDay() - 1];
+                const currentTime = now.toTimeString().slice(0, 5);
+
+                document.getElementById('current-time').textContent = `${now.toLocaleDateString('tr-TR')} ${currentTime}`;
+
+                let currentLessonFound = false;
+                let nextLessonFound = false;
+                
+                document.querySelectorAll('.current-lesson').forEach(el => el.classList.remove('current-lesson'));
+                
+                document.getElementById('current-lesson-info').textContent = 'Ders Yok';
+                document.getElementById('current-lesson-note-preview').textContent = '';
+                document.getElementById('next-lesson-info').textContent = 'Ders Yok';
+
+                for (let hourIndex = 0; hourIndex < hours.length; hourIndex++) {
+                    const [start, end] = hours[hourIndex].split(' - ');
+                    const key = `${dayName}-${hourIndex}`;
+                    const lesson = scheduleData[key];
+
+                    if (currentTime >= start && currentTime <= end) {
+                        const currentCellEl = document.querySelector(`td[data-day="${dayName}"][data-hour-index="${hourIndex}"]`);
+                        if (currentCellEl) {
+                            currentCellEl.classList.add('current-lesson');
+                        }
+                        if(lesson && lesson.name) {
+                            document.getElementById('current-lesson-info').textContent = lesson.name;
+                            const todayStr = now.toISOString().split('T')[0];
+                            if (lesson.notes && lesson.notes[todayStr]) {
+                                document.getElementById('current-lesson-note-preview').textContent = `📝 Not: ${lesson.notes[todayStr]}`;
+                            }
+                        }
+                        currentLessonFound = true;
+                    }
+                    
+                    if (currentTime < start && !nextLessonFound) {
+                         if(lesson && lesson.name) {
+                            document.getElementById('next-lesson-info').textContent = `${start} - ${lesson.name}`;
+                            nextLessonFound = true;
                         }
                     }
-                    if (currentTimeStr < periodTimes[i].start && !nextClass && slotData?.name) {
-                       nextClass = { ...slotData, time: periodTimes[i].start, day: currentDayStr };
-                    }
                 }
-            }
-            document.getElementById('current-class-info').innerHTML = currentClass?.name ? `<span class="font-bold">${currentClass.name}</span>` : 'Boş Saat';
-            document.getElementById('next-class-info').textContent = nextClass?.name ? `${nextClass.day} ${nextClass.time} - ${nextClass.name}` : 'Ders Yok';
-        }
+                
+                checkReminders(now);
+            };
 
-        // --- Modal Logic ---
-        function openModal(day, periodIndex) {
-            currentEditingSlot = { day, periodIndex };
-            const slotId = `${day}-${periodIndex}`;
-            document.getElementById('modal-title').textContent = `${day} - ${periodTimes[periodIndex].start}`;
-            document.getElementById('course-name').value = scheduleData[slotId]?.name || '';
-            document.getElementById('note-date').value = getTodayDateString();
-            loadNoteForSelectedDate();
-            modal.classList.remove('hidden');
-            setTimeout(() => modal.classList.remove('opacity-0'), 10);
-        }
-        
-        function loadNoteForSelectedDate() {
-            if (!currentEditingSlot) return;
-            const date = document.getElementById('note-date').value;
-            const slotId = `${currentEditingSlot.day}-${currentEditingSlot.periodIndex}`;
-            document.getElementById('course-notes').value = notesData[`${slotId}_${date}`]?.text || '';
-        }
+            // --- MODAL HANDLING ---
+            const openModal = (day, hourIndex) => {
+                currentCell = { day, hourIndex };
+                const key = `${day}-${hourIndex}`;
+                const lesson = scheduleData[key] || { name: '', notes: {} };
+                const today = new Date().toISOString().split('T')[0];
+                
+                modalTitle.textContent = `${day} - ${hours[hourIndex]}`;
+                lessonNameInput.value = lesson.name;
+                
+                noteDateInput.value = today;
+                lessonNoteInput.value = lesson.notes[today] || '';
 
-        function closeModal() { modal.classList.add('opacity-0'); setTimeout(() => modal.classList.add('hidden'), 300); }
+                modal.classList.remove('hidden');
+            };
 
-        function handleSave() {
-            if (!currentEditingSlot) return;
-            const { day, periodIndex } = currentEditingSlot;
-            const slotId = `${day}-${periodIndex}`;
-            const name = document.getElementById('course-name').value.trim();
-            if (name) { scheduleData[slotId] = { ...scheduleData[slotId], name }; } 
-            else { delete scheduleData[slotId]; }
+            const closeModal = () => {
+                modal.classList.add('hidden');
+            };
+
+            document.getElementById('save-button').addEventListener('click', () => {
+                const { day, hourIndex } = currentCell;
+                const key = `${day}-${hourIndex}`;
+                const lessonName = lessonNameInput.value.trim();
+                const noteDate = noteDateInput.value;
+                const noteText = lessonNoteInput.value.trim();
+
+                if (!scheduleData[key]) {
+                    scheduleData[key] = { name: '', notes: {} };
+                }
+
+                scheduleData[key].name = lessonName;
+
+                if (noteText) {
+                    scheduleData[key].notes[noteDate] = noteText;
+                } else {
+                    delete scheduleData[key].notes[noteDate];
+                }
+
+                saveData();
+                renderSchedule();
+                updateTimeAndLessons();
+                closeModal();
+            });
+
+            document.getElementById('delete-lesson-button').addEventListener('click', () => {
+                const { day, hourIndex } = currentCell;
+                const key = `${day}-${hourIndex}`;
+                delete scheduleData[key];
+                saveData();
+                renderSchedule();
+                updateTimeAndLessons();
+                closeModal();
+            });
             
-            const noteText = document.getElementById('course-notes').value.trim();
-            const noteDate = document.getElementById('note-date').value;
-            if (!noteDate) return;
-            const noteId = `${slotId}_${noteDate}`;
-            if(noteText) { notesData[noteId] = { text: noteText }; } 
-            else { delete notesData[noteId]; }
-
-            saveDataToStorage();
-            renderSchedule();
-            updateCurrentClassDisplay();
-            closeModal();
-        }
-
-        function handleDeleteClass() {
-             if (!currentEditingSlot) return;
-             const slotId = `${currentEditingSlot.day}-${currentEditingSlot.periodIndex}`;
-             delete scheduleData[slotId];
-             saveDataToStorage();
-             renderSchedule();
-             updateCurrentClassDisplay();
-             closeModal();
-        }
-
-        // --- Settings Logic ---
-        function updateUserHeader() {
-            const userHeader = document.getElementById('user-display-header');
-            userHeader.textContent = settingsData.name ? `${settingsData.name}${settingsData.branch ? ` - ${settingsData.branch}` : ''}` : '';
-        }
-        
-        function loadSettingsToUI() {
-            document.getElementById('setting-name').value = settingsData.name || '';
-            document.getElementById('setting-school').value = settingsData.school || '';
-            document.getElementById('setting-branch').value = settingsData.branch || '';
-            updateUserHeader();
-        }
-
-        function saveSettings() {
-            settingsData = { 
-                name: document.getElementById('setting-name').value.trim(), 
-                school: document.getElementById('setting-school').value.trim(), 
-                branch: document.getElementById('setting-branch').value.trim() 
-            };
-            saveDataToStorage();
-            updateUserHeader();
-            alert('Ayarlar kaydedildi!');
-        }
-
-        // --- Calendar and Event Logic ---
-        function renderAcademicCalendar() {
-            const list = document.getElementById('academic-calendar-list');
-            list.innerHTML = academicCalendar.map(event => {
-                const eventDate = new Date(event.date + 'T00:00:00');
-                const formattedDate = eventDate.toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric', weekday: 'long' });
-                let dateRange = formattedDate;
-                if (event.endDate) {
-                    const endDate = new Date(event.endDate + 'T00:00:00');
-                    dateRange += ` - ${endDate.toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric', weekday: 'long' })}`;
-                }
-                return `<li class="p-4 bg-gray-900 rounded-lg"><p class="font-semibold text-blue-400">${event.event}</p><p class="text-sm text-gray-400">${dateRange}</p></li>`;
-            }).join('');
-        }
-
-        function checkAcademicEvents() {
-            const today = new Date();
-            today.setHours(0,0,0,0);
-            const container = document.getElementById('announcements-container');
-            container.innerHTML = '';
-
-            academicCalendar.forEach(event => {
-                const eventDate = new Date(event.date + 'T00:00:00');
-                const timeDiff = eventDate.getTime() - today.getTime();
-                const dayDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
-                
-                let message = '';
-                if (dayDiff >= 0 && dayDiff <= 7) {
-                    message = `${event.event} etkinliğine ${dayDiff === 0 ? 'bugün' : `${dayDiff} gün kaldı`}.`;
-                }
-                
-                if (event.endDate) {
-                    const endDate = new Date(event.endDate + 'T00:00:00');
-                    if (today >= eventDate && today <= endDate) {
-                         message = `Şu anda ${event.event} içerisindesiniz.`;
-                    }
-                }
-
-                if(message) {
-                    const box = document.createElement('div');
-                    box.className = 'announcement-box relative p-4 bg-blue-900/50 border border-blue-500 text-blue-200 rounded-lg';
-                    box.innerHTML = `<p>${message}</p><span class="close-btn absolute top-2 right-3 cursor-pointer text-2xl">&times;</span>`;
-                    box.querySelector('.close-btn').onclick = () => box.remove();
-                    container.appendChild(box);
-                }
+            document.getElementById('today-button').addEventListener('click', () => {
+                noteDateInput.value = new Date().toISOString().split('T')[0];
+                const event = new Event('change');
+                noteDateInput.dispatchEvent(event);
             });
-        }
 
-        // --- File Import Functions ---
-        function handleFileImport(event, type) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    if (type === 'schedule') {
-                        if (typeof data !== 'object' || data === null || Array.isArray(data)) throw new Error('Geçersiz format.');
-                        scheduleData = data;
-                        saveDataToStorage();
-                        renderSchedule();
-                        alert('Ders programı başarıyla içe aktarıldı!');
-                    } else if (type === 'calendar') {
-                        if (!Array.isArray(data)) throw new Error('Geçersiz format.');
-                        academicCalendar = data;
-                        saveDataToStorage();
-                        renderAcademicCalendar();
-                        checkAcademicEvents();
-                        alert('Akademik takvim başarıyla içe aktarıldı!');
-                    }
-                } catch (error) { alert('Hata: Geçersiz JSON dosyası. ' + error.message); } 
-                finally { event.target.value = null; }
-            };
-            reader.readAsText(file);
-        }
-        
-        // --- View Switching ---
-        function showView(viewName) {
-            document.getElementById('schedule-view').classList.toggle('hidden', viewName !== 'schedule');
-            document.getElementById('calendar-view').classList.toggle('hidden', viewName !== 'calendar');
-            document.getElementById('settings-view').classList.toggle('hidden', viewName !== 'settings');
-            ['schedule', 'calendar', 'settings'].forEach(id => {
-                document.getElementById(`nav-${id}`).classList.toggle('active', viewName === id);
+            noteDateInput.addEventListener('change', (e) => {
+                const { day, hourIndex } = currentCell;
+                const key = `${day}-${hourIndex}`;
+                const lesson = scheduleData[key] || { notes: {} };
+                const selectedDate = e.target.value;
+                lessonNoteInput.value = lesson.notes[selectedDate] || '';
             });
-        }
 
-        // --- Event Listeners ---
-        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('cancel-button').addEventListener('click', closeModal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
+            });
+
+            // --- SETTINGS AND HEADER ---
+            document.getElementById('save-settings-button').addEventListener('click', () => {
+                saveData();
+                updateHeaderInfo();
+                createNotification('Ayarlar başarıyla kaydedildi!', 'success');
+            });
+            
+            const updateHeaderInfo = () => {
+                document.getElementById('user-name').textContent = document.getElementById('name-input').value || 'İsim Soyisim';
+                document.getElementById('user-branch').textContent = document.getElementById('branch-input').value || 'Branş';
+            };
+
+            // --- TAB NAVIGATION ---
+            window.changeTab = (tabName) => {
+                document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+                document.getElementById(`${tabName}-tab`).classList.remove('hidden');
+
+                document.querySelectorAll('.tab-button').forEach(button => button.classList.remove('active'));
+                document.querySelector(`button[onclick="changeTab('${tabName}')"]`).classList.add('active');
+            };
+
+            // --- NOTIFICATION SYSTEM ---
+            const createNotification = (message, type = 'info', duration = 5000) => {
+                const container = document.getElementById('notification-container');
+                const notif = document.createElement('div');
+                const colors = {
+                    info: 'bg-blue-500',
+                    success: 'bg-green-500',
+                    error: 'bg-red-500',
+                    reminder: 'bg-yellow-500 text-black'
+                };
+                notif.className = `notification ${colors[type]} text-white p-4 rounded-lg shadow-lg opacity-0 transform translate-y-2`;
+                notif.textContent = message;
+
+                container.appendChild(notif);
+
+                setTimeout(() => {
+                    notif.classList.remove('opacity-0', 'translate-y-2');
+                }, 100);
+
+                setTimeout(() => {
+                    notif.classList.add('opacity-0');
+                    notif.addEventListener('transitionend', () => notif.remove());
+                }, duration);
+
+                notif.addEventListener('click', () => {
+                     notif.classList.add('opacity-0');
+                    notif.addEventListener('transitionend', () => notif.remove());
+                });
+            };
+
+            // --- REMINDER SYSTEM ---
+            const checkReminders = (now) => {
+                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                
+                // Akademik Takvim Hatırlatıcıları
+                academicCalendar.forEach(item => {
+                    const eventDate = new Date(item.date);
+                    const diffTime = eventDate - today;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                    if (diffDays >= 0 && diffDays <= 7) {
+                        const reminderKey = `reminder-academic-${item.date}`;
+                        if (!sessionStorage.getItem(reminderKey)) {
+                            let message = diffDays === 0 ? `Bugün: ${item.event}` : `${diffDays} gün sonra: ${item.event}`;
+                            createNotification(message, 'reminder', 10000);
+                            sessionStorage.setItem(reminderKey, 'true');
+                        }
+                    }
+                });
+
+                // Resmî Tatil Hatırlatıcıları
+                publicHolidays.forEach(holiday => {
+                    const holidayDate = new Date(holiday.date);
+                    const diffTime = holidayDate - today;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    
+                    if (diffDays === 1) { // Sadece 1 gün önce
+                        const reminderKey = `reminder-holiday-${holiday.date}`;
+                        if (!sessionStorage.getItem(reminderKey)) {
+                           createNotification(`Yarın: ${holiday.event}`, 'reminder', 10000);
+                           sessionStorage.setItem(reminderKey, 'true');
+                        }
+                    }
+                });
+            };
+            
+            // --- FILE IMPORT ---
+            const fileImporter = document.getElementById('file-importer');
+            let importType = '';
+
+            document.getElementById('import-schedule-button').addEventListener('click', () => {
+                importType = 'schedule';
+                fileImporter.click();
+            });
+
+            document.getElementById('import-calendar-button').addEventListener('click', () => {
+                importType = 'calendar';
+                fileImporter.click();
+            });
+
+            fileImporter.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const content = JSON.parse(e.target.result);
+                        if (importType === 'schedule') {
+                            scheduleData = content;
+                            renderSchedule();
+                            createNotification('Ders programı başarıyla içe aktarıldı.', 'success');
+                        } else if (importType === 'calendar') {
+                            academicCalendar = content;
+                            renderAcademicCalendar();
+                            createNotification('Akademik takvim başarıyla içe aktarıldı.', 'success');
+                        }
+                        saveData();
+                    } catch (error) {
+                        console.error("JSON okuma hatası:", error);
+                        createNotification('Geçersiz dosya formatı. Lütfen .json dosyasını kontrol edin.', 'error');
+                    }
+                };
+                reader.readAsText(file);
+                event.target.value = null;
+            });
+            
+             // --- HELPERS ---
+            const formatDate = (dateString) => {
+                const date = new Date(dateString);
+                const userTimezoneOffset = date.getTimezoneOffset() * 60000;
+                const localDate = new Date(date.getTime() + userTimezoneOffset);
+                return localDate.toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' });
+            };
+
+
             initializeApp();
-
-            document.getElementById('schedule-body').addEventListener('click', e => {
-                const cell = e.target.closest('td[data-day]');
-                if (cell) openModal(cell.dataset.day, parseInt(cell.dataset.period));
-            });
-            document.getElementById('close-modal').addEventListener('click', closeModal);
-            document.getElementById('save-button').addEventListener('click', handleSave);
-            document.getElementById('delete-button').addEventListener('click', handleDeleteClass);
-            document.getElementById('note-date').addEventListener('change', loadNoteForSelectedDate);
-            document.getElementById('save-settings-button').addEventListener('click', saveSettings);
-            document.getElementById('nav-schedule').addEventListener('click', () => showView('schedule'));
-            document.getElementById('nav-calendar').addEventListener('click', () => showView('calendar'));
-            document.getElementById('nav-settings').addEventListener('click', () => showView('settings'));
-            
-            document.getElementById('import-schedule-button').addEventListener('click', () => document.getElementById('schedule-file-input').click());
-            document.getElementById('schedule-file-input').addEventListener('change', (e) => handleFileImport(e, 'schedule'));
-
-            document.getElementById('import-calendar-button').addEventListener('click', () => document.getElementById('calendar-file-input').click());
-            document.getElementById('calendar-file-input').addEventListener('change', (e) => handleFileImport(e, 'calendar'));
-
-            document.getElementById('note-reminder-close').addEventListener('click', () => document.getElementById('note-reminder-popup').classList.add('hidden'));
         });
     </script>
+
 </body>
 </html>
-
+```eof
