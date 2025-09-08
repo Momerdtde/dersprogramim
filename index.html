@@ -361,8 +361,15 @@
         };
 
         const renderAll = () => {
-            renderSchedule(); renderAcademicCalendar(); renderFutureNotes();
-            showAcquisitions(9); // Default view
+            renderSchedule(); 
+            renderAcademicCalendar(); 
+            renderFutureNotes();
+            if (document.getElementById('acquisitions-tab').classList.contains('hidden') === false) {
+                 showAcquisitions(9); // Re-render if visible
+            }
+             if (currentGrade && !document.getElementById('class-notes-modal').classList.contains('hidden')) {
+                renderClassNotes(currentGrade);
+            }
         };
         
         // --- UI & RENDER FUNCTIONS ---
@@ -655,7 +662,6 @@
                         if(noteIndex > -1) {
                             classNotes[currentGrade].splice(noteIndex, 1);
                             saveDataToFirestore();
-                            // onSnapshot will trigger re-render
                         }
                     });
                 });
