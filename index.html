@@ -23,6 +23,13 @@
             padding: 1.5rem;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             padding-top: 1rem;
+            position: relative;
+        }
+        .settings-button {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            z-index: 50;
         }
         .neon-text {
             font-family: 'Orbitron', sans-serif;
@@ -56,41 +63,11 @@
         .note-indicator { position: absolute; bottom: 4px; left: 4px; font-size: 0.8rem; }
         .modal { background-color: rgba(0,0,0,0.7); z-index: 100; }
         .notification { transition: opacity 0.5s, transform 0.5s; }
-        .settings-modal-content { max-height: 90vh; overflow-y: auto; }
-        
-        /* Not Defteri Stilleri */
-        .notes-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 1rem;
+        .header-info-container { display: flex; flex-direction: column; align-items: center; gap: 0.25rem; margin-bottom: 1.5rem; }
+        .settings-modal-content {
+            max-height: 90vh;
+            overflow-y: auto;
         }
-        .note-card {
-            background-color: #374151;
-            border-radius: 0.5rem;
-            padding: 1rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.2s;
-            position: relative;
-        }
-        .note-card .note-content-wrapper {
-             cursor: pointer;
-        }
-        .note-card:hover {
-            transform: translateY(-5px);
-        }
-        .delete-note-button {
-            position: absolute;
-            top: 0.5rem;
-            right: 0.5rem;
-            background: none;
-            border: none;
-            color: #9ca3af;
-            cursor: pointer;
-        }
-        .delete-note-button:hover {
-            color: #ef4444;
-        }
-
 
         /* Mobil Cihazlar İçin Özel Stiller */
         @media (max-width: 640px) {
@@ -131,18 +108,16 @@
 
     <div id="app-wrapper" class="hidden">
         <div class="app-container">
-            <div class="relative flex items-center justify-center text-center mb-4">
-                <div class="flex-grow">
+            <button id="settings-icon-button" class="settings-button text-gray-300 hover:text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            </button>
+            <div class="header-info-container text-center">
+                <div>
                     <h1 id="user-name" class="text-3xl font-bold text-white"></h1>
                     <p id="user-branch" class="text-lg text-blue-300"></p>
                 </div>
-                <button id="settings-icon-button" class="absolute top-0 right-0 text-gray-300 hover:text-white p-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-                </button>
+                <p class="text-md text-gray-400">Derslerinizi ve notlarınızı kolayca yönetin.</p>
             </div>
-            
-            <p class="text-md text-gray-400 text-center mb-6 -mt-4">Derslerinizi ve notlarınızı kolayca yönetin.</p>
-
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 text-center">
                 <div class="bg-slate-700 p-4 rounded-lg"><p class="font-semibold text-blue-300">Tarih ve Saat</p><p id="current-time" class="text-xl font-mono"></p></div>
                 <div class="bg-slate-700 p-4 rounded-lg"><p class="font-semibold text-green-300">Şu Anki Ders</p><p id="current-lesson-info" class="text-xl"></p><p id="current-lesson-note-preview" class="text-sm text-yellow-300 mt-1 truncate"></p></div>
@@ -766,8 +741,8 @@
             const defaultOptions = { day: '2-digit', month: 'long', year: 'numeric', weekday: 'long' };
             return date.toLocaleDateString('tr-TR', { ...defaultOptions, ...options });
         };
-        const initialAcquisitions9 = [ { week: 1, dateRange: "08-12 Eylül", theme: "SÖZÜN İNCELİĞİ", outcomes: "Okumayı yönetebilme", process: "Okuma amacını belirler, metnin türüne yönelik tahminlerde bulunur." }, { week: 2, dateRange: "15-19 Eylül", theme: "SÖZÜN İNCELİĞİ", outcomes: "Anlam oluşturabilme", process: "Edebiyatın güzel sanatlarla ilişkisini belirler, metindeki açık ve örtük iletiyi bulur." }, { week: 3, dateRange: "22-26 Eylül", theme: "SÖZÜN İNCELİĞİ", outcomes: "Anlam oluşturabilme (devam)", process: "Metnin temasını, söz sanatlarını ve yazarla ilişkisini belirler." }, { week: 4, dateRange: "29 Eylül-03 Ekim", theme: "SÖZÜN İNCELİĞİ", outcomes: "Yazma sürecini yönetebilme", process: "Yazma amacına karar verir, hedef kitleye göre metin türünü belirler." }, ];
-        const initialAcquisitions12 = [ { week: 1, dateRange: "08-12 Eylül", theme: "GİRİŞ", topic: "Edebiyat ve Düşünce Akımları", outcomes: "Edebî eserlerin felsefi bir anlayışı yansıtabileceği üzerinde durulur.", process: "15 Temmuz Demokrasi ve Milli Birlik Günü anılır. Metinden hareketle dil bilgisi çalışmaları yapılır." }, { week: 2, dateRange: "15-19 Eylül", theme: "GİRİŞ", topic: "Yazma ve Sunum", outcomes: "Toplumsal değişimin dili nasıl etkilediği hakkında yazı yazar.", process: "Teknolojik terimler üzerine sunum yapılır." }, { week: 3, dateRange: "22-26 Eylül", theme: "HİKÂYE", topic: "1960 Sonrası Hikâye", outcomes: "Metnin türünün tarihsel dönem ile ilişkisini, tema ve konusunu belirler.", process: "Metindeki çatışmalar ve olay örgüsü belirlenir." }, { week: 4, dateRange: "29 Eylül - 03 Ekim", theme: "HİKÂYE", topic: "1960 Sonrası Hikâye", outcomes: "Metindeki şahıs kadrosu, zaman ve mekânın özelliklerini belirler.", process: "Anlatıcı ve bakış açısının işlevi incelenir." } ];
+        const initialAcquisitions9 = [ {"week":1,"dateRange":"08-12 Eylül","theme":"SÖZÜN İNCELİĞİ","outcomes":"Okumayı yönetebilme","process":"Okuma amacını belirler, metnin türüne yönelik tahminlerde bulunur."}, {"week":2,"dateRange":"15-19 Eylül","theme":"SÖZÜN İNCELİĞİ","outcomes":"Anlam oluşturabilme","process":"Edebiyatın güzel sanatlarla ilişkisini belirler, metindeki açık ve örtük iletiyi bulur."}, {"week":3,"dateRange":"22-26 Eylül","theme":"SÖZÜN İNCELİĞİ","outcomes":"Anlam oluşturabilme (devam)","process":"Metnin temasını, söz sanatlarını ve yazarla ilişkisini belirler."}, {"week":4,"dateRange":"29 Eylül-03 Ekim","theme":"SÖZÜN İNCELİĞİ","outcomes":"Yazma sürecini yönetebilme","process":"Yazma amacına karar verir, hedef kitleye göre metin türünü belirler."} ];
+        const initialAcquisitions12 = [ {"week":1,"dateRange":"08-12 Eylül","theme":"GİRİŞ","topic":"Edebiyat ve Düşünce Akımları","outcomes":"Edebî eserlerin felsefi bir anlayışı yansıtabileceği üzerinde durulur.","process":"15 Temmuz Demokrasi ve Milli Birlik Günü anılır. Metinden hareketle dil bilgisi çalışmaları yapılır."}, {"week":2,"dateRange":"15-19 Eylül","theme":"GİRİŞ","topic":"Yazma ve Sunum","outcomes":"Toplumsal değişimin dili nasıl etkilediği hakkında yazı yazar.","process":"Teknolojik terimler üzerine sunum yapılır."}, {"week":3,"dateRange":"22-26 Eylül","theme":"HİKÂYE","topic":"1960 Sonrası Hikâye","outcomes":"Metnin türünün tarihsel dönem ile ilişkisini, tema ve konusunu belirler.","process":"Metindeki çatışmalar ve olay örgüsü belirlenir."}, {"week":4,"dateRange":"29 Eylül - 03 Ekim","theme":"HİKÂYE","topic":"1960 Sonrası Hikâye","outcomes":"Metindeki şahıs kadrosu, zaman ve mekânın özelliklerini belirler.","process":"Anlatıcı ve bakış açısının işlevi incelenir."} ];
 
         startApp();
     </script>
